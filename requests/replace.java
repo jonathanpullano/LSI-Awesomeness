@@ -27,7 +27,7 @@ public class replace extends HttpServlet {
         //Updates the session with the new text
         String newText = (String) request.getParameter("NewText");
         //Prevent the newText from being too long, to keep the session small.
-        newText = newText.substring(0, Math.min(newText.length()-1, 512));
+        newText = newText.substring(0, Math.min(newText.length(), 512));
         SessionTable table = SessionTable.getSessionTable(getServletContext());
         SessionTable.Entry entry = table.get(new Integer(cookie.getValue().split(":")[0]));
         entry.expiration = SessionManager.getExpirationTime();
