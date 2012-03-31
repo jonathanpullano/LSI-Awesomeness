@@ -1,4 +1,4 @@
-package Objects;
+package identifiers;
 
 import java.io.Serializable;
 
@@ -6,8 +6,12 @@ public class SID  implements Serializable{
 
 	private static final long serialVersionUID = 7250440382030198587L;
 	private int sessNum;
-	private int port;
 	private IPP ipp;
+
+	public SID(IPP ipp, int sessNum) {
+	    this.ipp = ipp;
+	    this.sessNum = sessNum;
+	}
 
 	public IPP getIpp() {
 		return ipp;
@@ -21,16 +25,7 @@ public class SID  implements Serializable{
 		return sessNum;
 	}
 
-	public int getPORT() {
-		return port;
-	}
-
 	public void setSessNum(int sessNum) {
 		this.sessNum = sessNum;
 	}
-
-	public void setPORT(int port) {
-		this.port = port;
-	}
-
 }
