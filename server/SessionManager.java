@@ -48,6 +48,7 @@ public class SessionManager {
             table.put(sessionID, entry);
             table.update(context);
             ourCookie = new Cookie(COOKIE_NAME, sessionID + ":" + 0);
+            
         }
         ourCookie.setMaxAge(COOKIE_TIMEOUT);
         response.addCookie(ourCookie);
