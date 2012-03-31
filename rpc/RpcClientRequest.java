@@ -14,8 +14,8 @@ import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageReply;
 
 public class RpcClientRequest extends Thread {
-    private ArrayList<IPP> ippList;
     private int opCode;
+    private ArrayList<IPP> ippList;
     private ArrayList<Object> arguments;
     private ArrayList<Object> results = null;
     
