@@ -3,33 +3,39 @@ package Objects;
 import java.io.Serializable;
 import java.net.InetAddress;
 
+/**
+ *
+ * Description goes here ..
+ */
 public class SID  implements Serializable{
-	
-	/**
-	 * descriptoin goes here...
-	 */
+
 	private static final long serialVersionUID = 7250440382030198587L;
-	private int sess_num;
-	private int PORT;
+	private int sessNum;
+	private int port;
 	private InetAddress ip;
-	
-	public int getSess_num() {
-		return sess_num;
+
+	public int getSessNum() {
+		return sessNum;
 	}
+
 	public int getPORT() {
-		return PORT;
+		return port;
 	}
+
 	public InetAddress getIp() {
 		return ip;
 	}
-	public void setSess_num(int sess_num) {
-		this.sess_num = sess_num;
+
+	public void setSess_num(int sessNum) {
+		this.sessNum = sessNum;
 	}
-	public void setPORT(int pORT) {
-		PORT = pORT;
+
+	public void setPORT(int port) {
+		this.port = port;
 	}
+
 	public void setIp(InetAddress ip) {
 		this.ip = ip;
 	}
-	
+
 }
