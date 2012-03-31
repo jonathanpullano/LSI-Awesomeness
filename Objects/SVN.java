@@ -7,6 +7,8 @@ public class SVN implements Serializable{
 	
 	private static final long serialVersionUID = -6264611582958483765L;
 	private int changeCount;
+	private InetAddress ipPrime;
+	private InetAddress ipBackup;
 	
 	public int getChangeCount() {
 		return changeCount;
@@ -26,6 +28,5 @@ public class SVN implements Serializable{
 	public void setIpBackup(InetAddress ipBackup) {
 		this.ipBackup = ipBackup;
 	}
-	private InetAddress ipPrime;
-	private InetAddress ipBackup;
+
 }
