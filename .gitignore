@@ -3,3 +3,5 @@
 bin/
 .project
 .settings
+
+bin/Objects/SID.class
