@@ -1,32 +1,36 @@
 package Objects;
 
 import java.io.Serializable;
-import java.net.InetAddress;
 
 public class SVN implements Serializable{
 	
 	private static final long serialVersionUID = -6264611582958483765L;
 	private int changeCount;
-	private InetAddress ipPrime;
-	private InetAddress ipBackup;
+	private IPP ippPrime;
+	private IPP ippBackup;
 	
 	public int getChangeCount() {
 		return changeCount;
 	}
-	public InetAddress getIpPrime() {
-		return ipPrime;
-	}
-	public InetAddress getIpBackup() {
-		return ipBackup;
-	}
+
 	public void setChangeCount(int changeCount) {
 		this.changeCount = changeCount;
 	}
-	public void setIpPrime(InetAddress ipPrime) {
-		this.ipPrime = ipPrime;
+
+	public IPP getIppPrime() {
+		return ippPrime;
 	}
-	public void setIpBackup(InetAddress ipBackup) {
-		this.ipBackup = ipBackup;
+
+	public IPP getIppBackup() {
+		return ippBackup;
+	}
+
+	public void setIppPrime(IPP ippPrime) {
+		this.ippPrime = ippPrime;
+	}
+
+	public void setIppBackup(IPP ippBackup) {
+		this.ippBackup = ippBackup;
 	}
 
 }
