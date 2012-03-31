@@ -7,8 +7,6 @@ public class SID  implements Serializable{
 	private static final long serialVersionUID = 7250440382030198587L;
 	private int sessNum;
 	private int port;
-	
-	//TODO dont forget to instantiate an IPP object when you declare this class...
 	private IPP ipp;
 
 	public IPP getIpp() {
@@ -27,7 +25,7 @@ public class SID  implements Serializable{
 		return port;
 	}
 
-	public void setSess_num(int sessNum) {
+	public void setSessNum(int sessNum) {
 		this.sessNum = sessNum;
 	}
 
