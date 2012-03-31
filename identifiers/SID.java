@@ -28,4 +28,9 @@ public class SID  implements Serializable{
 	public void setSessNum(int sessNum) {
 		this.sessNum = sessNum;
 	}
+	
+	 @Override
+     public String toString() {
+		 return Integer.toString(sessNum) + "_" + ipp.toString();
+     }
 }

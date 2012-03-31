@@ -38,5 +38,9 @@ public class SVN implements Serializable{
 	public void setIppBackup(IPP ippBackup) {
 		this.ippBackup = ippBackup;
 	}
-
+	
+	 @Override
+     public String toString() {
+         return Integer.toString(changeCount) + "_" + ippPrime.toString() + "_" + ippBackup.toString();
+     }
 }
