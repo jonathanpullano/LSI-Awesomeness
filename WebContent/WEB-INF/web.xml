@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <servlet>
+    <servlet-name>ServletInitializer</servlet-name>
+    <servlet-class>request.ServletInitializer</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+</web-app>

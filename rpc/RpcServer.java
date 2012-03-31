@@ -14,12 +14,18 @@ import rpc.message.RpcMessage;
 import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageReply;
 
-public class RpcSocket {
+public class RpcServer extends Thread {
 
+    private static RpcServer theServer;
+    
     private DatagramSocket rpcSocket;
     private static int callIDCounter;
 
-    public RpcSocket() {
+    /**
+     * Private Constructor (Singleton Pattern)
+     * Use getInstance to access
+     */
+    private RpcServer() {
         try {
             rpcSocket = new DatagramSocket();
             callIDCounter = 10000 * rpcSocket.getLocalPort();
@@ -28,12 +34,8 @@ public class RpcSocket {
         }
     }
 
-    //-----------------------------------------------------------
-    //NB: This function may change completely in the near future
-    //-----------------------------------------------------------
-    public void listen() {
+    public void run() {
         try {
-            DatagramSocket rpcSocket = new DatagramSocket();
             while(true) {
                 byte[] inBuf = new byte[RpcMessage.BUFFER_SIZE];
                 DatagramPacket recvPkt = new DatagramPacket(inBuf, inBuf.length);
@@ -59,6 +61,12 @@ public class RpcSocket {
         }
     }
 
+    public static RpcServer getInstance() {
+        if(theServer == null)
+            theServer = new RpcServer();
+        return theServer;
+    }
+    
     //-----------------------------------------------------------
     //NB: This function may change completely in the near future
     //-----------------------------------------------------------
@@ -66,47 +74,9 @@ public class RpcSocket {
         return new byte[length];
     }
 
-    //-----------------------------------------------------------
-    //NB: This function may change completely in the near future
-    //-----------------------------------------------------------
-
-    //
-    // SessionReadClient(sessionID, sessionVersionNum)
-    //   with multiple [destAddr, destPort] pairs
-    //
-    public RpcMessageReply SessionReadClient(ArrayList<IPP> ippList, int opCode, ArrayList<Object> arguments) {
-        int callID = callID();
-
-        RpcMessageCall outMsg = new RpcMessageCall(callID, opCode, arguments);
-        byte[] outBuf = outMsg.toByteStream();
-                for( IPP address : ippList ) {
-                    DatagramPacket sendPkt = new DatagramPacket(outBuf, RpcMessage.BUFFER_SIZE, address.getIp(), address.getPort());
-                    try {
-                        rpcSocket.send(sendPkt);
-                    } catch (IOException e) {
-                        // TODO: Smarty smart stuff
-                        e.printStackTrace();
-                    }
-                }
-        byte [] inBuf = new byte[RpcMessage.BUFFER_SIZE];
-        DatagramPacket recvPkt = new DatagramPacket(inBuf, inBuf.length);
-        RpcMessageReply inMsg = null;
-        try {
-            do {
-                recvPkt.setLength(inBuf.length);
-                rpcSocket.receive(recvPkt);
-                inMsg = (RpcMessageReply) RpcMessage.readByteStream(inBuf);
-            } while( inMsg != null && inMsg.getCallID() != callID );
-        } catch(InterruptedIOException iioe) {
-            // timeout
-            inMsg = null;
-        } catch(IOException ioe) {
-            // other error
-        }
-        return inMsg;
-    }
-
-    public int callID() {
-        return callIDCounter++;
+    public int callID() throws RuntimeException {
+        if(theServer != null)
+            return callIDCounter++;
+        else throw new RuntimeException("Need to start the server before creating clients");
     }
 }
