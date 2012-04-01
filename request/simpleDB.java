@@ -22,7 +22,7 @@ import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
 
-public class simpleDB {
+public class SimpleDB {
 
 	private static boolean DEBUG = true;
 
@@ -30,7 +30,7 @@ public class simpleDB {
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String ItemName = "IPP";
 	private static String AttrName = "IPP";
-	public simpleDB(){
+	public SimpleDB(){
 		oAWSCredentials = new BasicAWSCredentials(getKey(), getSecret());
 		sdbc = new AmazonSimpleDBClient(oAWSCredentials);
 	}
@@ -139,7 +139,7 @@ public class simpleDB {
 	public static void main(String[] args) {
 		String domain = "CS5300PROJECT1BSDBMbrList";
 		InetAddress ip = null;
-		simpleDB db = new simpleDB();
+		SimpleDB db = new SimpleDB();
 		try {
 			ip = InetAddress.getLocalHost();
 			System.out.println(ip.getHostAddress());
