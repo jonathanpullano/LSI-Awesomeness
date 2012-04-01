@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import util.Configuration;
 
@@ -13,6 +14,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
 import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
 import com.amazonaws.services.simpledb.model.Item;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
@@ -24,9 +26,10 @@ public class simpleDB {
 
 	private static boolean DEBUG = true;
 
-	static BasicAWSCredentials oAWSCredentials = null;
-	static AmazonSimpleDBClient sdbc = null;
-
+	private static BasicAWSCredentials oAWSCredentials = null;
+	private static AmazonSimpleDBClient sdbc = null;
+	private static String ItemName = "IPP";
+	private static String AttrName = "IPP";
 	public simpleDB(){
 		oAWSCredentials = new BasicAWSCredentials(getKey(), getSecret());
 		sdbc = new AmazonSimpleDBClient(oAWSCredentials);
@@ -44,21 +47,60 @@ public class simpleDB {
 		deleteDomainRequest.setDomainName(domain);
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
-
-	public void put(String domain, IPP ipp){
+	
+	
+	public void deleteMember(String domain, IPP ipp){
+		
+		DeleteAttributesRequest deleteAttributesRequest = new DeleteAttributesRequest(domain, ItemName);
+		
+		//sdbc.deleteAttributes(deleteAttributesRequest );
+	}
+	
+	public boolean exists(String domain, IPP ipp){
+		boolean exists = false;
+		//Check if its in the list first
+		List<Item> members = getMembersDetails(domain);
+		
+		for(Item member : members){
+			List<Attribute> attrs = member.getAttributes();
+			for(Attribute attr : attrs){
+				if(ipp.toString().equals(attr.getValue()))
+					exists = true;
+			}
+		}
+		return exists;
+	}
+	
+	public void putMember(String domain, IPP ipp){
 		if(DEBUG) System.out.println("Adding IP-P " + ipp.toString() + " to " + domain + "");
+		
+		if(exists(domain, ipp)){
+			System.out.println("Member already exists in membership list.");
+			return;
+		}
+		
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		newAttributes.add(new ReplaceableAttribute("IPP", ipp.toString(), false));
+		newAttributes.add(new ReplaceableAttribute(AttrName, ipp.toString(), false));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
 		
 		newRequest.setDomainName(domain);		
-		newRequest.setItemName("IPP");
+		newRequest.setItemName(UUID.randomUUID().toString());
 		newRequest.setAttributes(newAttributes);
 
+		
 		sdbc.putAttributes(newRequest);	 
 	}
+	
+	public List<Item> getMembersDetails(String domain){
 
-	public ArrayList<String> get(String domain){
+		String query = "select * from " + domain;
+		SelectRequest selectRequest = new SelectRequest(query);
+		SelectResult result = sdbc.select(selectRequest);
+		List<Item> items = result.getItems();
+		return items;
+	}
+	
+	public ArrayList<String> getMembers(String domain){
 
 		String query = "select * from " + domain;
 		SelectRequest selectRequest = new SelectRequest(query);
@@ -104,9 +146,11 @@ public class simpleDB {
 			IPP ippPrime = new IPP(ip, 3555);
 			//db.deleteDomain(domain);
 			db.createDomain(domain);
-			db.put(domain, ippPrime);
+			db.putMember(domain, ippPrime);
 			db.listDomains();
-			System.out.println(db.get(domain));
+			System.out.println(db.getMembers(domain));
+			//db.deleteMember(domain, ippPrime);
+			
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
