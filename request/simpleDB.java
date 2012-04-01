@@ -7,60 +7,99 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import util.Configuration;
+
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
-import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
+import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
+import com.amazonaws.services.simpledb.model.SelectRequest;
+import com.amazonaws.services.simpledb.model.SelectResult;
+import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 public class simpleDB {
 
 	private static boolean DEBUG = true;
-
-	// AWS Credentials
-	static String sAccessKey = "AKIAJ2D62ULWYRFXSLRA";
-	static String sSecretKey = "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";
-
-	// Authenticate AWS account
-	static BasicAWSCredentials oAWSCredentials = new BasicAWSCredentials(sAccessKey, sSecretKey);
-	static AmazonSimpleDBClient awsSimpleDBClient = new AmazonSimpleDBClient(oAWSCredentials);
-
-	public static void createTable(String domain){
-		if(DEBUG) System.out.println("Connecting and creating domain (" + domain + ")"); 
-
-		awsSimpleDBClient.createDomain(new CreateDomainRequest(domain));
 	
+	static BasicAWSCredentials oAWSCredentials = null;
+	static AmazonSimpleDBClient sdbc = null;
+	
+	public simpleDB(){
+		oAWSCredentials = new BasicAWSCredentials(getKey(), getSecret());
+		sdbc = new AmazonSimpleDBClient(oAWSCredentials);
 	}
-	
-	public static void put(String domain, IPP ipp){
+
+	public void createDomain(String domain){
+		if(DEBUG) System.out.println("Connecting and creating domain (" + domain + ")");
+		
+		sdbc.createDomain(new CreateDomainRequest(domain));
+	}
+
+	public void deleteDomain(String domain){
+		if(DEBUG) System.out.println("Deleting domain ("+domain +")"); 
+		DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest();
+		deleteDomainRequest.setDomainName(domain);
+		sdbc.deleteDomain(deleteDomainRequest);
+	}
+
+	public void put(String domain, IPP ipp){
+		if(DEBUG) System.out.println("Adding IP-P " + ipp.toString() + " to " + domain + "");
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		Attribute attr = new Attribute();
-		newAttributes.add(new ReplaceableAttribute("Ipp", ipp.toString(), false));
+		newAttributes.add(new ReplaceableAttribute("IPP", ipp.toString(), false));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
+		UpdateCondition expected = new UpdateCondition();
+		
 		newRequest.setDomainName(domain);
+		newRequest.setExpected(expected );
 		newRequest.setItemName(UUID.randomUUID().toString());
-		 newRequest.setAttributes(newAttributes);
-		 
-		 awsSimpleDBClient.putAttributes(newRequest);	 
+		newRequest.setAttributes(newAttributes);
+
+		sdbc.putAttributes(newRequest);	 
 	}
 	
-	//TODO main calls createTable using CS5300PROJECT1BSDBMbrList
-	public static void main(String[] args) {
-        String domain = "CS5300PROJECT1BSDBMbrList";
-        InetAddress ip = null;
-		try {
-			ip = InetAddress.getLocalHost();
-	        System.out.println(ip.getHostAddress());
-	        IPP ippPrime = new IPP(ip, 5555);
-	        createTable(domain);
-	        put(domain, ippPrime);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
+	public void get(String domain){
+		
+		String query = "select * from " + domain;
+		SelectRequest selectRequest = new SelectRequest(query);
+		SelectResult result = sdbc.select(selectRequest);
+		System.out.println(result.toString());
+	}
+	
+	public void listDomains(){
+		for(String domainName : sdbc.listDomains().getDomainNames()){
+			System.out.println("Domain: " + domainName);
 		}
+	}
+	
+	private static String getKey () {
+		Configuration config = Configuration.getInstance();
+		if(DEBUG) System.out.println("Got accessKey: " + config.getProperty("accessKey"));
+		return config.getProperty("accessKey");
+	}
 
-
-
-        
-    }
+	private static String getSecret () {
+		Configuration config = Configuration.getInstance();
+		if(DEBUG) System.out.println("Got secretKey: " + config.getProperty("secretKey"));
+		return config.getProperty("secretKey");
+	}
+	
+//	public static void main(String[] args) {
+//		String domain = "CS5300PROJECT1BSDBMbrList";
+//		InetAddress ip = null;
+//		simpleDB db = new simpleDB();
+//		try {
+//			ip = InetAddress.getLocalHost();
+//			System.out.println(ip.getHostAddress());
+//			IPP ippPrime = new IPP(ip, 3555);
+//			//db.deleteDomain(domain);
+//			db.createDomain(domain);
+//			db.put(domain, ippPrime);
+//			db.listDomains();
+//			db.get(domain);
+//		} catch (UnknownHostException e) {
+//			e.printStackTrace();
+//		}
+//	}
 }
