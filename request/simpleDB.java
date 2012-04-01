@@ -5,14 +5,18 @@ import identifiers.IPP;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import util.Configuration;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
+import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
+import com.amazonaws.services.simpledb.model.Item;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
@@ -59,12 +63,19 @@ public class simpleDB {
 		sdbc.putAttributes(newRequest);	 
 	}
 	
-	public void get(String domain){
+	public ArrayList<String> get(String domain){
 		
 		String query = "select * from " + domain;
 		SelectRequest selectRequest = new SelectRequest(query);
 		SelectResult result = sdbc.select(selectRequest);
-		System.out.println(result.toString());
+		List<Item> items = result.getItems();
+		ArrayList<String> serverList = new ArrayList<String>();
+		for(Item it : items){
+			List<Attribute> attrs = it.getAttributes();
+			for(Attribute attr : attrs)
+				serverList.add(attr.getValue());
+		}
+		return serverList;
 	}
 	
 	public void listDomains(){
@@ -85,21 +96,21 @@ public class simpleDB {
 		return config.getProperty("secretKey");
 	}
 	
-//	public static void main(String[] args) {
-//		String domain = "CS5300PROJECT1BSDBMbrList";
-//		InetAddress ip = null;
-//		simpleDB db = new simpleDB();
-//		try {
-//			ip = InetAddress.getLocalHost();
-//			System.out.println(ip.getHostAddress());
-//			IPP ippPrime = new IPP(ip, 3555);
-//			//db.deleteDomain(domain);
-//			db.createDomain(domain);
-//			db.put(domain, ippPrime);
-//			db.listDomains();
-//			db.get(domain);
-//		} catch (UnknownHostException e) {
-//			e.printStackTrace();
-//		}
-//	}
+	public static void main(String[] args) {
+		String domain = "CS5300PROJECT1BSDBMbrList";
+		InetAddress ip = null;
+		simpleDB db = new simpleDB();
+		try {
+			ip = InetAddress.getLocalHost();
+			System.out.println(ip.getHostAddress());
+			IPP ippPrime = new IPP(ip, 3555);
+			//db.deleteDomain(domain);
+			//db.createDomain(domain);
+			//db.put(domain, ippPrime);
+			//db.listDomains();
+			System.out.println(db.get(domain));
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+	}
 }
