@@ -5,9 +5,7 @@ import identifiers.IPP;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 import util.Configuration;
 
@@ -21,15 +19,14 @@ import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
-import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 public class simpleDB {
 
 	private static boolean DEBUG = true;
-	
+
 	static BasicAWSCredentials oAWSCredentials = null;
 	static AmazonSimpleDBClient sdbc = null;
-	
+
 	public simpleDB(){
 		oAWSCredentials = new BasicAWSCredentials(getKey(), getSecret());
 		sdbc = new AmazonSimpleDBClient(oAWSCredentials);
@@ -37,7 +34,7 @@ public class simpleDB {
 
 	public void createDomain(String domain){
 		if(DEBUG) System.out.println("Connecting and creating domain (" + domain + ")");
-		
+
 		sdbc.createDomain(new CreateDomainRequest(domain));
 	}
 
@@ -53,23 +50,24 @@ public class simpleDB {
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
 		newAttributes.add(new ReplaceableAttribute("IPP", ipp.toString(), false));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
-		UpdateCondition expected = new UpdateCondition();
 		
-		newRequest.setDomainName(domain);
-		newRequest.setExpected(expected );
-		newRequest.setItemName(UUID.randomUUID().toString());
+		newRequest.setDomainName(domain);		
+		newRequest.setItemName("IPP");
 		newRequest.setAttributes(newAttributes);
 
 		sdbc.putAttributes(newRequest);	 
 	}
-	
+
 	public ArrayList<String> get(String domain){
-		
+
 		String query = "select * from " + domain;
 		SelectRequest selectRequest = new SelectRequest(query);
 		SelectResult result = sdbc.select(selectRequest);
 		List<Item> items = result.getItems();
+		System.out.println(items);
+		
 		ArrayList<String> serverList = new ArrayList<String>();
+		
 		for(Item it : items){
 			List<Attribute> attrs = it.getAttributes();
 			for(Attribute attr : attrs)
@@ -77,13 +75,13 @@ public class simpleDB {
 		}
 		return serverList;
 	}
-	
+
 	public void listDomains(){
 		for(String domainName : sdbc.listDomains().getDomainNames()){
 			System.out.println("Domain: " + domainName);
 		}
 	}
-	
+
 	private static String getKey () {
 		Configuration config = Configuration.getInstance();
 		if(DEBUG) System.out.println("Got accessKey: " + config.getProperty("accessKey"));
@@ -95,7 +93,7 @@ public class simpleDB {
 		if(DEBUG) System.out.println("Got secretKey: " + config.getProperty("secretKey"));
 		return config.getProperty("secretKey");
 	}
-	
+
 	public static void main(String[] args) {
 		String domain = "CS5300PROJECT1BSDBMbrList";
 		InetAddress ip = null;
@@ -105,9 +103,9 @@ public class simpleDB {
 			System.out.println(ip.getHostAddress());
 			IPP ippPrime = new IPP(ip, 3555);
 			//db.deleteDomain(domain);
-			//db.createDomain(domain);
-			//db.put(domain, ippPrime);
-			//db.listDomains();
+			db.createDomain(domain);
+			db.put(domain, ippPrime);
+			db.listDomains();
 			System.out.println(db.get(domain));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
