@@ -29,12 +29,11 @@ public class Replace extends HttpServlet {
         //Prevent the newText from being too long, to keep the session small.
         if(newText != null)
             newText = newText.substring(0, Math.min(newText.length(), 512));
-        SessionTable table = SessionTable.getSessionTable(getServletContext());
+        SessionTable table = SessionTable.getInstance();
         SessionTable.Entry entry = table.get(new Integer(cookie.getValue().split(":")[0]));
         entry.expiration = SessionManager.getExpirationTime();
         entry.message = newText;
         entry.version++;
-        table.commit(context);
         request.setAttribute("data", new FormData(entry.message,entry.expiration));
 
         //Redirect to form.jsp

@@ -24,9 +24,9 @@ public class Logout extends HttpServlet {
         Cookie cookie = SessionManager.getCookie(context, request, response);
 
         //Erase the session
-        SessionTable table = SessionTable.getSessionTable(getServletContext());
+        SessionTable table = SessionTable.getInstance();
+        //TODO: Do we need to consider Version Number?
         table.destroySession(new Integer(cookie.getValue().split(":")[0]));
-        table.commit(context);
 
         //Print the logout page
         PrintWriter out = response.getWriter();

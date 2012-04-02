@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import rpc.message.RpcMessage;
 import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageReply;
+import server.SessionTable;
+import server.SessionTable.Entry;
 
 public class RpcServer extends Thread {
 
@@ -65,6 +67,9 @@ public class RpcServer extends Thread {
                     case RpcMessage.DELETE:
                         reply = SessionDelete(recvMessage);
                         break;
+                    case RpcMessage.NOOP:
+                        reply = NoOp(recvMessage);
+                        break;
                 }
 
                 byte[] outBuf = reply.toByteStream();
@@ -86,49 +91,68 @@ public class RpcServer extends Thread {
     }
 
     public RpcMessageReply SessionRead(RpcMessageCall call) {
-        //TODO: SessionRead - Server Side
-        int changeCount = (Integer)call.getArguments().get(0);
-        System.out.println("SessionRead called");
-        System.out.println("ChangeCount: " + changeCount);
+        int sid = (Integer)call.getArguments().get(0);
+        int changeCount = (Integer)call.getArguments().get(1);
+        SessionTable table = SessionTable.getInstance();
 
-        ArrayList<Object> results = new ArrayList<Object>();
-        results.add("I like pie");
-        results.add(1L);
+        Entry entry = table.get(sid);
+        ArrayList<Object> results = null;
+        if(entry.version == changeCount) {
+            results = new ArrayList<Object>();
+            results.add(entry.message);
+            results.add(entry.expiration);
+        }
         return new RpcMessageReply(call.getCallID(), results);
     }
 
     public RpcMessageReply SessionWrite(RpcMessageCall call) {
-        //TODO: SessionWrite - Server Side
-        int changeCount = (Integer)call.getArguments().get(0);
-        String data = (String)call.getArguments().get(1);
+        int sid = (Integer)call.getArguments().get(0);
+        int changeCount = (Integer)call.getArguments().get(1);
+        String data = (String)call.getArguments().get(2);
         long discardTime = (Long)call.getArguments().get(3);
-        ArrayList<Object> results = new ArrayList<Object>();
-        return new RpcMessageReply(call.getCallID(), results);
+        SessionTable table = SessionTable.getInstance();
+
+        table.put(sid, new Entry(changeCount, data, discardTime));
+        return new RpcMessageReply(call.getCallID(), new ArrayList());
     }
 
     public RpcMessageReply SessionDelete(RpcMessageCall call) {
-        //TODO: SessionReply - Server Side
-        int changeCount = (Integer)call.getArguments().get(0);
-        ArrayList<Object> results = new ArrayList<Object>();
-        System.out.println("SessionDelete called");
-        return new RpcMessageReply(call.getCallID(), results);
+        int sid = (Integer)call.getArguments().get(0);
+        int changeCount = (Integer)call.getArguments().get(1);
+        SessionTable table = SessionTable.getInstance();
+        table.destroySession(sid, changeCount);
+
+        return new RpcMessageReply(call.getCallID(), new ArrayList());
     }
 
-    public int callID() throws RuntimeException {
-        if(theServer != null)
-            return callIDCounter++;
-        throw new RuntimeException("Start the server first!");
+    public RpcMessageReply NoOp(RpcMessageCall call) {
+        return new RpcMessageReply(call.getCallID(), new ArrayList());
     }
 
+    /**
+     * Gets a unique callID
+     * @return
+     */
+    public int callID() {
+        //getInstance() ensures the server is started first
+        return getInstance().callIDCounter++;
+    }
+
+    /**
+     * Gets a the port the UDP server is running on
+     * @return
+     */
     public int getPort() {
-        if(rpcSocket != null)
-            return rpcSocket.getLocalPort();
-        throw new RuntimeException("Start the server first!");
+      //getInstance() ensures the server is started first
+        return getInstance().rpcSocket.getLocalPort();
     }
 
+    /**
+     * gets the local IPP
+     * @return
+     */
     public IPP getIPPLocal() {
-        if(ippLocal != null)
-            return ippLocal;
-        throw new RuntimeException("Start the server first!");
+      //getInstance() ensures the server is started first
+        return getInstance().ippLocal;
     }
 }

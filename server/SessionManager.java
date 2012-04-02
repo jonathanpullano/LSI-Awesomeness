@@ -34,7 +34,7 @@ public class SessionManager {
             }
             //We found a cookie, verify it's valid
             if(ourCookie != null) {
-                SessionTable table = SessionTable.getSessionTable(context);
+                SessionTable table = SessionTable.getInstance();
                 SessionTable.Entry entry = table.get(new Integer(ourCookie.getValue().split(":")[0]));
                 if(entry == null) {
                     //It's mangled. Throw it out.
@@ -44,11 +44,10 @@ public class SessionManager {
         }
         //No cookie found, so make a new one
         if(ourCookie == null) {
-            SessionTable table = SessionTable.getSessionTable(context);
+            SessionTable table = SessionTable.getInstance();
             int sessionID = getNewSessionID(context);
             SessionTable.Entry entry = new SessionTable.Entry(0, DEFAULT_MESSAGE, getExpirationTime());
             table.put(sessionID, entry);
-            table.commit(context);
             ourCookie = new Cookie(COOKIE_NAME, sessionID + ":" + 0);
 
         }
@@ -89,25 +88,14 @@ public class SessionManager {
      * @return
      */
     public static void sessionRequest(ServletContext context, HttpServletRequest request, HttpServletResponse response) {
-        cleanExpiredSessions(context);
+        SessionTable table = SessionTable.getInstance();
+        table.cleanExpiredSessions();
 
         Cookie cookie = SessionManager.getCookie(context, request, response);
-
-        SessionTable table = SessionTable.getSessionTable(context);
         SessionTable.Entry entry = table.get(new Integer(cookie.getValue().split(":")[0]));
         entry.expiration = SessionManager.getExpirationTime();
-        table.commit(context);
 
         request.setAttribute("data", new FormData(entry.message, entry.expiration));
     }
 
-    /**
-     * Removes expired sessions from the main session table
-     * @param context
-     */
-    public static void cleanExpiredSessions(ServletContext context) {
-        SessionTable table = SessionTable.getSessionTable(context);
-        table.cleanExpiredSessions();
-        table.commit(context);
-    }
 }

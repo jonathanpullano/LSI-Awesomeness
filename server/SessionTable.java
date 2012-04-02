@@ -6,14 +6,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-
 /**
  * Manages the Session Table
  * @author jonathan
  *
  */
 public class SessionTable {
+    public static SessionTable table = null;
+
     public HashMap<Integer, Entry> sessionTable = new HashMap<Integer, Entry>();
 
     /**
@@ -43,6 +43,8 @@ public class SessionTable {
       }
     };
 
+    private SessionTable() {};
+
     /**
      * Looks up a session
      * @param sessionID
@@ -61,26 +63,10 @@ public class SessionTable {
         sessionTable.put(sessionID, entry);
     }
 
-    /**
-     * Commits changes to the session table to the context
-     * @param context
-     */
-    public synchronized void commit(ServletContext context) {
-        context.setAttribute("sessionTable", this);
-    }
-
-    /**
-     * Gets the session table, or creates one if it doesn't exist yet
-     * @param context
-     * @return
-     */
-    public static synchronized SessionTable getSessionTable(ServletContext context) {
-        SessionTable table = (SessionTable)context.getAttribute("sessionTable");
-        if(table == null) {
-            table = new SessionTable();
-            context.setAttribute("sessionTable", table);
-        }
-        return table;
+    public void destroySession(int sessionID, int version) {
+        Entry session = sessionTable.get(sessionID);
+        if(session.version <= version)
+            sessionTable.remove(session);
     }
 
     /**
@@ -103,6 +89,12 @@ public class SessionTable {
                 iter.remove();
             }
         }
+    }
+
+    public static SessionTable getInstance() {
+        if(table == null)
+            table = new SessionTable();
+        return table;
     }
 
     @Override
