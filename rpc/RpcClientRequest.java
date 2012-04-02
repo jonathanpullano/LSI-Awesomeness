@@ -40,6 +40,7 @@ public class RpcClientRequest extends Thread {
         RpcMessageCall outMsg = new RpcMessageCall(callID, opCode, arguments);
         byte[] outBuf = outMsg.toByteStream();
         for( IPP address : ippList ) {
+            //TODO: Are there cases where the example code breaks? :O
             DatagramPacket sendPkt = new DatagramPacket(outBuf, outBuf.length, address.getIp(), address.getPort());
             try {
                 rpcSocket.send(sendPkt);

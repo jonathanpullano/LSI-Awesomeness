@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import request.Form.FormData;
 import server.SessionManager;
 import server.SessionTable;
 
@@ -33,11 +34,12 @@ public class Replace extends HttpServlet {
         entry.expiration = SessionManager.getExpirationTime();
         entry.message = newText;
         entry.version++;
-        table.update(context);
+        table.commit(context);
+        request.setAttribute("data", new FormData(entry.message,entry.expiration));
 
         //Redirect to form.jsp
         RequestDispatcher dispatcher =
-        request.getRequestDispatcher("/form.jsp");
+        request.getRequestDispatcher("/WEB-INF/form.jsp");
         dispatcher.forward(request, response);
     }
 }

@@ -28,9 +28,22 @@ public class IPP implements Serializable{
 	public void setPort(int port) {
 		this.port = port;
 	}
-	
+
 	 @Override
      public String toString() {
          return ip.getHostAddress() + "-" + Integer.toString(port);
      }
+
+	 @Override
+	 public boolean equals(Object other) {
+	     if (this == other) return true;
+	     if (!(other instanceof IPP)) return false;
+	     IPP otherIPP = (IPP)other;
+	     return otherIPP.getPort() == getPort() && otherIPP.getIp().equals(getIp());
+	 }
+
+	 @Override
+	 public int hashCode() {
+	     return getIp().toString().hashCode() + getPort();
+	 }
 }

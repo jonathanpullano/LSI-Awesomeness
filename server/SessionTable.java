@@ -65,7 +65,7 @@ public class SessionTable {
      * Commits changes to the session table to the context
      * @param context
      */
-    public synchronized void update(ServletContext context) {
+    public synchronized void commit(ServletContext context) {
         context.setAttribute("sessionTable", this);
     }
 

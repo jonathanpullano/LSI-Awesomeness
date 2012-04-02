@@ -1,1 +1,1 @@
-<%response.sendRedirect("form.jsp");%>
+<%response.sendRedirect("form");%>

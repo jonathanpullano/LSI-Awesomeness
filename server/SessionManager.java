@@ -7,6 +7,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import request.Form.FormData;
+
 public class SessionManager {
     public static String DEFAULT_MESSAGE = "Hello, user!";
     public static String COOKIE_NAME = "CS5300PROJECT1SESSION";
@@ -46,9 +48,9 @@ public class SessionManager {
             int sessionID = getNewSessionID(context);
             SessionTable.Entry entry = new SessionTable.Entry(0, DEFAULT_MESSAGE, getExpirationTime());
             table.put(sessionID, entry);
-            table.update(context);
+            table.commit(context);
             ourCookie = new Cookie(COOKIE_NAME, sessionID + ":" + 0);
-            
+
         }
         ourCookie.setMaxAge(COOKIE_TIMEOUT);
         response.addCookie(ourCookie);
@@ -86,7 +88,7 @@ public class SessionManager {
      * @param response
      * @return
      */
-    public static SessionTable.Entry sessionRequest(ServletContext context, HttpServletRequest request, HttpServletResponse response) {
+    public static void sessionRequest(ServletContext context, HttpServletRequest request, HttpServletResponse response) {
         cleanExpiredSessions(context);
 
         Cookie cookie = SessionManager.getCookie(context, request, response);
@@ -94,8 +96,9 @@ public class SessionManager {
         SessionTable table = SessionTable.getSessionTable(context);
         SessionTable.Entry entry = table.get(new Integer(cookie.getValue().split(":")[0]));
         entry.expiration = SessionManager.getExpirationTime();
-        table.update(context);
-        return entry;
+        table.commit(context);
+
+        request.setAttribute("data", new FormData(entry.message, entry.expiration));
     }
 
     /**
@@ -105,6 +108,6 @@ public class SessionManager {
     public static void cleanExpiredSessions(ServletContext context) {
         SessionTable table = SessionTable.getSessionTable(context);
         table.cleanExpiredSessions();
-        table.update(context);
+        table.commit(context);
     }
 }

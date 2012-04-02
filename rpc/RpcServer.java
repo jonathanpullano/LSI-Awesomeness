@@ -1,9 +1,12 @@
 package rpc;
 
+import identifiers.IPP;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import rpc.message.RpcMessage;
@@ -15,16 +18,26 @@ public class RpcServer extends Thread {
     private static RpcServer theServer;
     private DatagramSocket rpcSocket;
     private static int callIDCounter;
+    private static IPP ippLocal;
 
     /**
      * Private Constructor (Singleton Pattern)
-     * Use getInstance to access
+     * Use getInstance() to access
      */
     private RpcServer() {
         super("ServerThread");
         try {
             rpcSocket = new DatagramSocket();
             callIDCounter = 10000 * rpcSocket.getLocalPort();
+            InetAddress localIP = null;
+            while(localIP == null) {
+                try {
+                    localIP = InetAddress.getLocalHost();
+                } catch (UnknownHostException e) {
+                    e.printStackTrace();
+                }
+            }
+            ippLocal = new IPP(localIP, rpcSocket.getLocalPort());
         } catch (SocketException e) {
             e.printStackTrace();
         }
@@ -77,6 +90,7 @@ public class RpcServer extends Thread {
         int changeCount = (Integer)call.getArguments().get(0);
         System.out.println("SessionRead called");
         System.out.println("ChangeCount: " + changeCount);
+
         ArrayList<Object> results = new ArrayList<Object>();
         results.add("I like pie");
         results.add(1L);
@@ -103,12 +117,18 @@ public class RpcServer extends Thread {
     public int callID() throws RuntimeException {
         if(theServer != null)
             return callIDCounter++;
-        else throw new RuntimeException("Start the server first!");
+        throw new RuntimeException("Start the server first!");
     }
 
     public int getPort() {
         if(rpcSocket != null)
             return rpcSocket.getLocalPort();
-        else throw new RuntimeException("Start the server first!");
+        throw new RuntimeException("Start the server first!");
+    }
+
+    public IPP getIPPLocal() {
+        if(ippLocal != null)
+            return ippLocal;
+        throw new RuntimeException("Start the server first!");
     }
 }

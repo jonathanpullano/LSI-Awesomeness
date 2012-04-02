@@ -26,7 +26,7 @@ public class Logout extends HttpServlet {
         //Erase the session
         SessionTable table = SessionTable.getSessionTable(getServletContext());
         table.destroySession(new Integer(cookie.getValue().split(":")[0]));
-        table.update(context);
+        table.commit(context);
 
         //Print the logout page
         PrintWriter out = response.getWriter();

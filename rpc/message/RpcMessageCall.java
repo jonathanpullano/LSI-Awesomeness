@@ -29,7 +29,7 @@ public class RpcMessageCall extends RpcMessage {
     private static ArrayList<Object> send(ArrayList<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         RpcClientRequest client = new RpcClientRequest(ippList, opCode, arguments);
         client.start();
-        while(client.getState()!=Thread.State.TERMINATED);
+        while(client.getState() != Thread.State.TERMINATED);
         return client.getResults();
     }
 
@@ -54,7 +54,6 @@ public class RpcMessageCall extends RpcMessage {
         arguments.add(sid);
         arguments.add(changeCount);
         return send(ippList, RpcMessage.DELETE, arguments);
-
     }
 
     public static ArrayList<Object> NoOp(ArrayList<IPP> ippList) {
