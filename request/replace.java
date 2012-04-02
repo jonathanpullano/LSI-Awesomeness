@@ -15,7 +15,7 @@ import server.SessionManager;
 import server.SessionTable;
 
 @WebServlet("/replace")
-public class replace extends HttpServlet {
+public class Replace extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)

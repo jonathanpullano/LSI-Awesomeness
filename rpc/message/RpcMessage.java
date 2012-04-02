@@ -4,14 +4,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 
-public abstract class RpcMessage {
+public abstract class RpcMessage implements Serializable {
+    private static final long serialVersionUID = -6093564626696863788L;
     public final static int BUFFER_SIZE = 1024;
+    public final static String LENGTH_EXCEEDED = "Message Exceeds Maximum Packet Length";
 
     //OpCodes
     final public static int READ = 0;
     final public static int WRITE = 1;
+    final public static int DELETE = 2;
+    final public static int NOOP = 3;
+
 
     public int callID;
 
@@ -52,5 +58,11 @@ public abstract class RpcMessage {
             e.printStackTrace();
         }
         return msg;
+    }
+
+    public boolean validatePacket() {
+        if(this.toByteStream().length > BUFFER_SIZE)
+            throw new RuntimeException(LENGTH_EXCEEDED);
+        return true;
     }
  }

@@ -2,6 +2,7 @@ package request;
 
 import identifiers.IPP;
 
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -24,6 +25,8 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 
 public class SimpleDB {
 
+    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
+
 	private static boolean DEBUG = true;
 
 	private static BasicAWSCredentials oAWSCredentials = null;
@@ -42,25 +45,25 @@ public class SimpleDB {
 	}
 
 	public void deleteDomain(String domain){
-		if(DEBUG) System.out.println("Deleting domain ("+domain +")"); 
+		if(DEBUG) System.out.println("Deleting domain ("+domain +")");
 		DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest();
 		deleteDomainRequest.setDomainName(domain);
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
-	
-	
+
+
 	public void deleteMember(String domain, IPP ipp){
-		
+
 		DeleteAttributesRequest deleteAttributesRequest = new DeleteAttributesRequest(domain, ItemName);
-		
+
 		//sdbc.deleteAttributes(deleteAttributesRequest );
 	}
-	
+
 	public boolean exists(String domain, IPP ipp){
 		boolean exists = false;
 		//Check if its in the list first
 		List<Item> members = getMembersDetails(domain);
-		
+
 		for(Item member : members){
 			List<Attribute> attrs = member.getAttributes();
 			for(Attribute attr : attrs){
@@ -70,27 +73,27 @@ public class SimpleDB {
 		}
 		return exists;
 	}
-	
+
 	public void putMember(String domain, IPP ipp){
 		if(DEBUG) System.out.println("Adding IP-P " + ipp.toString() + " to " + domain + "");
-		
+
 		if(exists(domain, ipp)){
 			System.out.println("Member already exists in membership list.");
 			return;
 		}
-		
+
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
 		newAttributes.add(new ReplaceableAttribute(AttrName, ipp.toString(), false));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
-		
-		newRequest.setDomainName(domain);		
+
+		newRequest.setDomainName(domain);
 		newRequest.setItemName(UUID.randomUUID().toString());
 		newRequest.setAttributes(newAttributes);
 
-		
-		sdbc.putAttributes(newRequest);	 
+
+		sdbc.putAttributes(newRequest);
 	}
-	
+
 	public List<Item> getMembersDetails(String domain){
 
 		String query = "select * from " + domain;
@@ -99,7 +102,7 @@ public class SimpleDB {
 		List<Item> items = result.getItems();
 		return items;
 	}
-	
+
 	public ArrayList<String> getMembers(String domain){
 
 		String query = "select * from " + domain;
@@ -107,15 +110,21 @@ public class SimpleDB {
 		SelectResult result = sdbc.select(selectRequest);
 		List<Item> items = result.getItems();
 		System.out.println(items);
-		
+
 		ArrayList<String> serverList = new ArrayList<String>();
-		
+
 		for(Item it : items){
 			List<Attribute> attrs = it.getAttributes();
 			for(Attribute attr : attrs)
 				serverList.add(attr.getValue());
 		}
 		return serverList;
+	}
+
+	public void listDomains(PrintWriter out) {
+	    for(String domainName : sdbc.listDomains().getDomainNames()){
+            out.println("Domain: " + domainName);
+        }
 	}
 
 	public void listDomains(){
@@ -150,7 +159,7 @@ public class SimpleDB {
 			db.listDomains();
 			System.out.println(db.getMembers(domain));
 			//db.deleteMember(domain, ippPrime);
-			
+
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

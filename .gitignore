@@ -1,6 +1,6 @@
 .classpath
 .DS_Store
-bin/
+bin/*
 .project
 .settings
 
@@ -9,3 +9,4 @@ bin/Objects/SID.class
 .classpath
 
 bin/server/SessionManager.class
+WebContent/AwsCredentials.properties

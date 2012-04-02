@@ -18,13 +18,14 @@ public class RpcClientRequest extends Thread {
     private ArrayList<IPP> ippList;
     private ArrayList<Object> arguments;
     private ArrayList<Object> results = null;
-    
+
     public RpcClientRequest(ArrayList<IPP> ippList, int opCode, ArrayList<Object> arguments) {
+        super("ClientRequest");
         this.ippList = ippList;
         this.opCode = opCode;
         this.arguments = arguments;
     }
-    
+
     @Override
     public void run() {
         int callID = RpcServer.getInstance().callID();
@@ -38,11 +39,8 @@ public class RpcClientRequest extends Thread {
         }
         RpcMessageCall outMsg = new RpcMessageCall(callID, opCode, arguments);
         byte[] outBuf = outMsg.toByteStream();
-        if(outBuf.length > RpcMessage.BUFFER_SIZE) {
-            throw new RuntimeException("Message Exceeds Maximum Packet Length");
-        }
         for( IPP address : ippList ) {
-            DatagramPacket sendPkt = new DatagramPacket(outBuf, RpcMessage.BUFFER_SIZE, address.getIp(), address.getPort());
+            DatagramPacket sendPkt = new DatagramPacket(outBuf, outBuf.length, address.getIp(), address.getPort());
             try {
                 rpcSocket.send(sendPkt);
             } catch (IOException e) {
@@ -58,7 +56,7 @@ public class RpcClientRequest extends Thread {
                 recvPkt.setLength(inBuf.length);
                 rpcSocket.receive(recvPkt);
                 inMsg = (RpcMessageReply) RpcMessage.readByteStream(inBuf);
-            } while( inMsg != null && inMsg.getCallID() != callID );
+            } while( inMsg.getCallID() != callID );
         } catch(InterruptedIOException iioe) {
             // timeout
             inMsg = null;
@@ -67,7 +65,7 @@ public class RpcClientRequest extends Thread {
         }
         results = inMsg.getResults();
     }
-    
+
     /**
      * Returns the result of the request, or NULL if the request has not been completed
      */

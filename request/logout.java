@@ -15,7 +15,7 @@ import server.SessionManager;
 import server.SessionTable;
 
 @WebServlet("/logout")
-public class logout extends HttpServlet {
+public class Logout extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
