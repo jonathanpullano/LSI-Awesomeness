@@ -1,5 +1,7 @@
 package request;
 
+import identifiers.CookieVal;
+
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
@@ -11,9 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import request.Form.FormData;
 import server.SessionManager;
-import server.SessionTable;
 
 @WebServlet("/replace")
 public class Replace extends HttpServlet {
@@ -23,18 +23,15 @@ public class Replace extends HttpServlet {
         throws ServletException, IOException {
         ServletContext context = getServletContext();
         Cookie cookie = SessionManager.getCookie(context, request, response);
+        CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
 
         //Updates the session with the new text
         String newText = (String) request.getParameter("NewText");
         //Prevent the newText from being too long, to keep the session small.
         if(newText != null)
             newText = newText.substring(0, Math.min(newText.length(), 512));
-        SessionTable table = SessionTable.getInstance();
-        SessionTable.Entry entry = table.get(new Integer(cookie.getValue().split(":")[0]));
-        entry.expiration = SessionManager.getExpirationTime();
-        entry.message = newText;
-        entry.version++;
-        request.setAttribute("data", new FormData(entry.message,entry.expiration));
+        Cookie newCookie = SessionManager.writeRequest(context, newText, cookieVal.getSid(), cookieVal.getSvn());
+        response.addCookie(newCookie);
 
         //Redirect to form.jsp
         RequestDispatcher dispatcher =

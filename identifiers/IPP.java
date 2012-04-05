@@ -2,6 +2,7 @@ package identifiers;
 
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class IPP implements Serializable{
 	private static final long serialVersionUID = 5041613869405327697L;
@@ -29,6 +30,10 @@ public class IPP implements Serializable{
 		this.port = port;
 	}
 
+	public boolean isNull() {
+	    return this.equals(getNullIpp());
+	}
+
 	 @Override
      public String toString() {
          return ip.getHostAddress() + "-" + Integer.toString(port);
@@ -45,5 +50,27 @@ public class IPP implements Serializable{
 	 @Override
 	 public int hashCode() {
 	     return getIp().toString().hashCode() + getPort();
+	 }
+
+	 public static IPP getIPP(String ippString) {
+	     String[] split = ippString.split("-");
+	     try {
+            return new IPP(InetAddress.getByName(split[0]), new Integer(split[1]));
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+	    return null;
+	 }
+
+	 public static IPP getNullIpp() {
+    	 try {
+    	     return new IPP(InetAddress.getByName("0.0.0.0"), 0);
+         } catch (UnknownHostException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+         }
+    	 return null;
 	 }
 }

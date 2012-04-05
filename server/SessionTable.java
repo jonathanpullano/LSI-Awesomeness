@@ -1,5 +1,7 @@
 package server;
 
+import identifiers.SID;
+
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,9 +14,9 @@ import java.util.Map;
  *
  */
 public class SessionTable {
-    public static SessionTable table = null;
+    public static SessionTable table = new SessionTable();
 
-    public HashMap<Integer, Entry> sessionTable = new HashMap<Integer, Entry>();
+    public HashMap<SID, Entry> sessionTable = new HashMap<SID, Entry>();
 
     /**
      * Represents a session
@@ -50,7 +52,7 @@ public class SessionTable {
      * @param sessionID
      * @return
      */
-    public Entry get(int sessionID) {
+    public synchronized Entry get(SID sessionID) {
         return sessionTable.get(sessionID);
     }
 
@@ -59,11 +61,11 @@ public class SessionTable {
      * @param sessionID
      * @param entry
      */
-    public void put(int sessionID, Entry entry) {
+    public synchronized void put(SID sessionID, Entry entry) {
         sessionTable.put(sessionID, entry);
     }
 
-    public void destroySession(int sessionID, int version) {
+    public synchronized void destroySession(SID sessionID, int version) {
         Entry session = sessionTable.get(sessionID);
         if(session.version <= version)
             sessionTable.remove(session);
@@ -73,18 +75,18 @@ public class SessionTable {
      * Destroys the session with the given ID
      * @param sessionID
      */
-    public void destroySession(int sessionID) {
+    public synchronized void destroySession(SID sessionID) {
         sessionTable.remove(sessionID);
     }
 
     /**
      * Removes all sessions that have expired from this table
      */
-    public void cleanExpiredSessions() {
+    public synchronized void cleanExpiredSessions() {
         Date now = Calendar.getInstance().getTime();
-        Iterator<Map.Entry<Integer, Entry>> iter = sessionTable.entrySet().iterator();
+        Iterator<Map.Entry<SID, Entry>> iter = sessionTable.entrySet().iterator();
         while(iter.hasNext()) {
-            Map.Entry<Integer, Entry> next = iter.next();
+            Map.Entry<SID, Entry> next = iter.next();
             if(new Date(next.getValue().expiration).before(now)) {
                 iter.remove();
             }
@@ -92,8 +94,6 @@ public class SessionTable {
     }
 
     public static SessionTable getInstance() {
-        if(table == null)
-            table = new SessionTable();
         return table;
     }
 

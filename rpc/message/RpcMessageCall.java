@@ -1,6 +1,7 @@
 package rpc.message;
 
 import identifiers.IPP;
+import identifiers.SID;
 
 import java.util.ArrayList;
 
@@ -33,7 +34,7 @@ public class RpcMessageCall extends RpcMessage {
         return client.getResults();
     }
 
-    public static ReadResult SessionRead(ArrayList<IPP> ippList, int sid, int changeCount) {
+    public static ReadResult SessionRead(ArrayList<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
@@ -41,7 +42,7 @@ public class RpcMessageCall extends RpcMessage {
         return new ReadResult((String)results.get(0), (Long)results.get(1));
     }
 
-    public static ArrayList<Object> SessionWrite(ArrayList<IPP> ippList, int sid, int changeCount, long discardTime) {
+    public static ArrayList<Object> SessionWrite(ArrayList<IPP> ippList, SID sid, int changeCount, long discardTime) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
@@ -49,7 +50,7 @@ public class RpcMessageCall extends RpcMessage {
         return send(ippList, RpcMessage.WRITE, arguments);
     }
 
-    public static ArrayList<Object> SessionDelete(ArrayList<IPP> ippList, int sid, int changeCount) {
+    public static ArrayList<Object> SessionDelete(ArrayList<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);

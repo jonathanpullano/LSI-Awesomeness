@@ -19,6 +19,8 @@ public class RpcClientRequest extends Thread {
     private ArrayList<Object> arguments;
     private ArrayList<Object> results = null;
 
+    public final static int SOCKET_TIMEOUT = 2000;
+
     public RpcClientRequest(ArrayList<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         super("ClientRequest");
         this.ippList = ippList;
@@ -33,9 +35,13 @@ public class RpcClientRequest extends Thread {
         DatagramSocket rpcSocket = null;
         try {
             rpcSocket = new DatagramSocket();
+            rpcSocket.setSoTimeout(SOCKET_TIMEOUT);
         } catch (SocketException e1) {
+            //Could not open UDP socket, so let's just pretend the request failed, okay? :(
             System.err.println("Failed to create socket");
             e1.printStackTrace();
+            results = null;
+            return;
         }
         RpcMessageCall outMsg = new RpcMessageCall(callID, opCode, arguments);
         byte[] outBuf = outMsg.toByteStream();
@@ -45,7 +51,6 @@ public class RpcClientRequest extends Thread {
             try {
                 rpcSocket.send(sendPkt);
             } catch (IOException e) {
-                // TODO: Smarty smart stuff
                 e.printStackTrace();
             }
         }
@@ -60,7 +65,8 @@ public class RpcClientRequest extends Thread {
             } while( inMsg.getCallID() != callID );
         } catch(InterruptedIOException iioe) {
             // timeout
-            inMsg = null;
+            results = null;
+            return;
         } catch(IOException ioe) {
             // other error
         }

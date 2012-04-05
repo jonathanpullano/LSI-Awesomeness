@@ -1,5 +1,7 @@
 package request;
 
+import identifiers.CookieVal;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -25,8 +27,8 @@ public class Logout extends HttpServlet {
 
         //Erase the session
         SessionTable table = SessionTable.getInstance();
-        //TODO: Do we need to consider Version Number?
-        table.destroySession(new Integer(cookie.getValue().split(":")[0]));
+        CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
+        table.destroySession(cookieVal.getSid());
 
         //Print the logout page
         PrintWriter out = response.getWriter();

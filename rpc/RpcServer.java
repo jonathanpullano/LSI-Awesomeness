@@ -1,6 +1,7 @@
 package rpc;
 
 import identifiers.IPP;
+import identifiers.SID;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -17,7 +18,7 @@ import server.SessionTable.Entry;
 
 public class RpcServer extends Thread {
 
-    private static RpcServer theServer;
+    private static RpcServer theServer = new RpcServer();
     private DatagramSocket rpcSocket;
     private static int callIDCounter;
     private static IPP ippLocal;
@@ -85,13 +86,11 @@ public class RpcServer extends Thread {
     }
 
     public static RpcServer getInstance() {
-        if(theServer == null)
-            theServer = new RpcServer();
         return theServer;
     }
 
     public RpcMessageReply SessionRead(RpcMessageCall call) {
-        int sid = (Integer)call.getArguments().get(0);
+        SID sid = (SID)call.getArguments().get(0);
         int changeCount = (Integer)call.getArguments().get(1);
         SessionTable table = SessionTable.getInstance();
 
@@ -106,7 +105,7 @@ public class RpcServer extends Thread {
     }
 
     public RpcMessageReply SessionWrite(RpcMessageCall call) {
-        int sid = (Integer)call.getArguments().get(0);
+        SID sid = (SID)call.getArguments().get(0);
         int changeCount = (Integer)call.getArguments().get(1);
         String data = (String)call.getArguments().get(2);
         long discardTime = (Long)call.getArguments().get(3);
@@ -117,7 +116,7 @@ public class RpcServer extends Thread {
     }
 
     public RpcMessageReply SessionDelete(RpcMessageCall call) {
-        int sid = (Integer)call.getArguments().get(0);
+        SID sid = (SID)call.getArguments().get(0);
         int changeCount = (Integer)call.getArguments().get(1);
         SessionTable table = SessionTable.getInstance();
         table.destroySession(sid, changeCount);

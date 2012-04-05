@@ -2,8 +2,7 @@ package identifiers;
 
 import java.io.Serializable;
 
-public class SVN implements Serializable{
-
+public class SVN implements Serializable {
 	private static final long serialVersionUID = -6264611582958483765L;
 	private int changeCount;
 	private IPP ippPrime;
@@ -38,9 +37,14 @@ public class SVN implements Serializable{
 	public void setIppBackup(IPP ippBackup) {
 		this.ippBackup = ippBackup;
 	}
-	
+
 	 @Override
      public String toString() {
-         return Integer.toString(changeCount) + "_" + ippPrime.toString() + "_" + ippBackup.toString();
+         return changeCount + "_" + ippPrime.toString() + "_" + ippBackup.toString();
      }
+
+	 public static SVN getSVN(String svnString) {
+	     String[] split = svnString.split("_");
+	     return new SVN(Integer.parseInt(split[0]), IPP.getIPP(split[1]), IPP.getIPP(split[2]));
+	 }
 }

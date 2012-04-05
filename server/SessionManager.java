@@ -1,5 +1,11 @@
 package server;
 
+import identifiers.CookieVal;
+import identifiers.IPP;
+import identifiers.SID;
+import identifiers.SVN;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.servlet.ServletContext;
@@ -8,6 +14,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import request.Form.FormData;
+import rpc.RpcServer;
+import rpc.message.RpcMessageCall;
+import rpc.message.RpcMessageCall.ReadResult;
+import server.SessionTable.Entry;
+
+//jonathan
+//TODO: Handle contexts/synchrony
+//TODO: Re-enable Garbage Collection
+//TODO: Make sure cookies are not replicated and deleted properly
+//TODO: Debug, Debug
 
 public class SessionManager {
     public static String DEFAULT_MESSAGE = "Hello, user!";
@@ -35,7 +51,7 @@ public class SessionManager {
             //We found a cookie, verify it's valid
             if(ourCookie != null) {
                 SessionTable table = SessionTable.getInstance();
-                SessionTable.Entry entry = table.get(new Integer(ourCookie.getValue().split(":")[0]));
+                SessionTable.Entry entry = table.get(CookieVal.getCookieVal(ourCookie.getValue()).getSid());
                 if(entry == null) {
                     //It's mangled. Throw it out.
                     ourCookie = null;
@@ -43,17 +59,81 @@ public class SessionManager {
             }
         }
         //No cookie found, so make a new one
-        if(ourCookie == null) {
-            SessionTable table = SessionTable.getInstance();
-            int sessionID = getNewSessionID(context);
-            SessionTable.Entry entry = new SessionTable.Entry(0, DEFAULT_MESSAGE, getExpirationTime());
-            table.put(sessionID, entry);
-            ourCookie = new Cookie(COOKIE_NAME, sessionID + ":" + 0);
-
-        }
+        if(ourCookie == null)
+            ourCookie = newSession(context);
         ourCookie.setMaxAge(COOKIE_TIMEOUT);
         response.addCookie(ourCookie);
         return ourCookie;
+    }
+
+    public static Cookie newSession(ServletContext context) {
+        return writeRequest(context, DEFAULT_MESSAGE, new SID(getNewSessNum(context), RpcServer.getInstance().getIPPLocal()), new SVN(-1, IPP.getNullIpp(), IPP.getNullIpp())); //TODO:fix
+    }
+
+    public static Cookie writeRequest(ServletContext context, String newData, SID sid, SVN svn) {
+        SessionTable table = SessionTable.getInstance();
+        long discardTime = getExpirationTime();
+        int newChangeCount = svn.getChangeCount()+1;
+        SessionTable.Entry entry = new SessionTable.Entry(newChangeCount, newData, discardTime);
+        table.put(sid, entry);
+        context.setAttribute("data", new FormData(newData, discardTime));
+
+        IPP IppLocal = RpcServer.getInstance().getIPPLocal();
+        ArrayList<IPP> members = SimpleDB.getInstance().getMemberIpps();
+
+        IPP ippPrimary = svn.getIppPrime();
+        IPP ippBackup = svn.getIppBackup();
+        //Check primary and backup first
+        members.remove(ippPrimary);
+        members.remove(ippBackup);
+        members.add(0, ippPrimary);
+        members.add(0, ippBackup);
+        SVN newSvn = null;
+        for(IPP ipp : members) {
+            if(ipp.equals(IppLocal) || ipp.isNull())
+                continue;
+            ArrayList<IPP> ippList = new ArrayList<IPP>();
+            ippList.add(ipp);
+            ArrayList<Object> ack = RpcMessageCall.SessionWrite(ippList, sid, newChangeCount, discardTime);
+            if(ack != null) {
+                svn = new SVN(newChangeCount, IppLocal, ipp);
+                break;
+            }
+        }
+        if(newSvn == null)
+            newSvn = new SVN(newChangeCount, IppLocal, IPP.getNullIpp());
+        return new Cookie(COOKIE_NAME, new CookieVal(sid, newSvn).toString());
+    }
+
+    public static FormData readRequest(HttpServletResponse response, SID sid, SVN svn) {
+        IPP ippPrimary = svn.getIppPrime();
+        IPP ippBackup = svn.getIppBackup();
+        IPP ippLocal = RpcServer.getInstance().getIPPLocal();
+        if(ippPrimary.equals(ippLocal)) {
+            //We are the primary server, so return the data
+            Entry entry = SessionTable.getInstance().get(sid);
+            return new FormData(entry.message, entry.version);
+        } else if(ippBackup.isNull()) {
+            //Backup is null. Trigger self-repair case from 3.4
+            ippBackup = ippLocal;
+            SID newSid = new SID(sid.getSessNum(), RpcServer.getInstance().getIPPLocal());
+            SVN newSvn = new SVN(svn.getChangeCount(), ippPrimary, ippBackup);
+            response.addCookie(new Cookie(COOKIE_NAME, new CookieVal(newSid, newSvn).toString()));
+        } else if(ippBackup.equals(ippLocal)) {
+            //We are the backup server, so return the data
+            Entry entry = SessionTable.getInstance().get(sid);
+            return new FormData(entry.message, entry.version);
+        }
+        ArrayList<IPP> ippList = new ArrayList<IPP>();
+        //Primary should never be null, and backup should be self-repaired
+        ippList.add(ippPrimary);
+        ippList.add(ippBackup);
+        ReadResult result = null;
+        if(!ippList.isEmpty())
+            result = RpcMessageCall.SessionRead(ippList, sid, svn.getChangeCount());
+        if(result != null)
+            return new FormData(result.getData(), result.getDiscardTime());
+        return null;
     }
 
     /**
@@ -61,12 +141,12 @@ public class SessionManager {
      * @param context
      * @return
      */
-    public static synchronized int getNewSessionID(ServletContext context) {
-        Integer sessionID = (Integer)context.getAttribute("sessionCounter");
-        if(sessionID == null)
-            sessionID = -1;
-        context.setAttribute("sessionCounter", ++sessionID);
-        return sessionID;
+    public static synchronized int getNewSessNum(ServletContext context) {
+        Integer sessNum = (Integer)context.getAttribute("sessionCounter");
+        if(sessNum == null)
+            sessNum = -1;
+        context.setAttribute("sessionCounter", ++sessNum);
+        return sessNum;
     }
 
     /**
@@ -78,24 +158,9 @@ public class SessionManager {
         return now.getTimeInMillis() + TIMEOUT;
     }
 
-    /**
-     * Called every page load.
-     * Cleans expired sessions, updates the expiration time, and returns the current session
-     * Called from JSP.
-     * @param context
-     * @param request
-     * @param response
-     * @return
-     */
-    public static void sessionRequest(ServletContext context, HttpServletRequest request, HttpServletResponse response) {
-        SessionTable table = SessionTable.getInstance();
-        table.cleanExpiredSessions();
-
-        Cookie cookie = SessionManager.getCookie(context, request, response);
-        SessionTable.Entry entry = table.get(new Integer(cookie.getValue().split(":")[0]));
-        entry.expiration = SessionManager.getExpirationTime();
-
-        request.setAttribute("data", new FormData(entry.message, entry.expiration));
+    public static void deleteCookie(HttpServletResponse response, Cookie toDelete) {
+        Cookie cookie = new Cookie(toDelete.getName(), toDelete.getValue());
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
-
 }

@@ -8,7 +8,7 @@ public class SID  implements Serializable{
 	private int sessNum;
 	private IPP ipp;
 
-	public SID(IPP ipp, int sessNum) {
+	public SID(int sessNum, IPP ipp) {
 	    this.ipp = ipp;
 	    this.sessNum = sessNum;
 	}
@@ -28,9 +28,27 @@ public class SID  implements Serializable{
 	public void setSessNum(int sessNum) {
 		this.sessNum = sessNum;
 	}
-	
+
 	 @Override
      public String toString() {
 		 return Integer.toString(sessNum) + "_" + ipp.toString();
+     }
+
+	 public static SID getSID(String sidString) {
+	     String[] split = sidString.split("_");
+	     return new SID(Integer.parseInt(split[0]), IPP.getIPP(split[1]));
+	 }
+
+   @Override
+     public boolean equals(Object other) {
+         if (this == other) return true;
+         if (!(other instanceof SID)) return false;
+         SID otherSID = (SID)other;
+         return otherSID.getSessNum() == getSessNum() && otherSID.getIpp().equals(getIpp());
+     }
+
+     @Override
+     public int hashCode() {
+         return getIpp().toString().hashCode() + getSessNum();
      }
 }
