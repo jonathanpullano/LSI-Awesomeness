@@ -18,7 +18,10 @@ import server.SessionTable;
 
 @WebServlet("/logout")
 public class Logout extends HttpServlet {
-    @Override
+
+	private static final long serialVersionUID = 1L;
+	
+	@Override
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
         throws ServletException, IOException {

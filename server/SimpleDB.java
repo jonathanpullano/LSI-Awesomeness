@@ -26,7 +26,7 @@ public class SimpleDB {
 
     public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
 
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 
 	private static BasicAWSCredentials oAWSCredentials = null;
 	private static AmazonSimpleDBClient sdbc = null;
@@ -125,7 +125,7 @@ public class SimpleDB {
 		SelectRequest selectRequest = new SelectRequest(query);
 		SelectResult result = sdbc.select(selectRequest);
 		List<Item> items = result.getItems();
-		System.out.println(items);
+		if(DEBUG) System.out.println(items);
 
 		ArrayList<String> serverList = new ArrayList<String>();
 
@@ -139,14 +139,9 @@ public class SimpleDB {
 
 	public void listDomains(PrintWriter out) {
 	    for(String domainName : sdbc.listDomains().getDomainNames()){
+	    	if(DEBUG) System.out.println("Domain: " + domainName);
             out.println("Domain: " + domainName);
         }
-	}
-
-	public void listDomains() {
-		for(String domainName : sdbc.listDomains().getDomainNames()){
-			System.out.println("Domain: " + domainName);
-		}
 	}
 
 	private String getKey () {
@@ -159,13 +154,6 @@ public class SimpleDB {
 		Configuration config = Configuration.getInstance();
 		if(DEBUG) System.out.println("Got secretKey: " + config.getProperty("secretKey"));
 		return config.getProperty("secretKey");
-	}
-
-	public static void main(String[] args) {
-		InetAddress ip = null;
-		SimpleDB db = new SimpleDB();
-		db.deleteDomain(MEMBER_LIST_DOMAIN);
-
 	}
 
 	public static SimpleDB getInstance() {
