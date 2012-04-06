@@ -7,16 +7,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.TreeMap;
+
+import rpc.message.RpcMessageCall.ReadResult;
 
 /**
  * Manages the Session Table
  * @author jonathan
  *
  */
-public class SessionTable {
+public class SessionTable extends Thread {
     public static SessionTable table = new SessionTable();
-
+    
     public HashMap<SID, Entry> sessionTable = new HashMap<SID, Entry>();
+    public TreeMap<SID, Entry> cacheTable = new TreeMap<SID, Entry>();
+    
+    final public static int MAX_CACHE_SIZE = 3;
 
     /**
      * Represents a session
@@ -53,9 +59,18 @@ public class SessionTable {
      * @return
      */
     public synchronized Entry get(SID sessionID) {
-        return sessionTable.get(sessionID);
+        if(sessionTable.containsKey(sessionID))
+            return sessionTable.get(sessionID);
+        return cacheTable.get(sessionID);
     }
 
+    public synchronized void cache(SID sessionID, ReadResult result, int changeCount) {
+        //TODO: can the cache store 
+        if(cacheTable.size() >= MAX_CACHE_SIZE)
+            cacheTable.remove(cacheTable.firstKey());
+        cacheTable.put(sessionID, new Entry(changeCount, result.getData(), result.getDiscardTime())); 
+    }
+    
     /**
      * Adds a new session to the table
      * @param sessionID
@@ -100,5 +115,15 @@ public class SessionTable {
     @Override
     public String toString() {
         return sessionTable.toString();
+    }
+    
+    public void run() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        cleanExpiredSessions();
     }
 }

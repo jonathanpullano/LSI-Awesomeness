@@ -4,8 +4,10 @@ import identifiers.IPP;
 import identifiers.SID;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import rpc.RpcClientRequest;
+import server.SessionTable;
 
 public class RpcMessageCall extends RpcMessage {
     private static final long serialVersionUID = -424650587395225785L;
@@ -27,7 +29,7 @@ public class RpcMessageCall extends RpcMessage {
         return opCode;
     }
 
-    private static ArrayList<Object> send(ArrayList<IPP> ippList, int opCode, ArrayList<Object> arguments) {
+    private static ArrayList<Object> send(Collection<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         RpcClientRequest client = new RpcClientRequest(ippList, opCode, arguments);
         client.start();
         while(client.getState() != Thread.State.TERMINATED);
@@ -39,18 +41,28 @@ public class RpcMessageCall extends RpcMessage {
         arguments.add(sid);
         arguments.add(changeCount);
         ArrayList<Object> results = send(ippList, RpcMessage.READ, arguments);
-        return new ReadResult((String)results.get(0), (Long)results.get(1));
+        if(results == null)
+            return null;
+        ReadResult readResult = new ReadResult((String)results.get(0), (Long)results.get(1));
+        SessionTable.getInstance().cache(sid, readResult, changeCount);
+        return readResult;
     }
 
-    public static boolean SessionWrite(ArrayList<IPP> ippList, SID sid, int changeCount, long discardTime) {
+    public static boolean SessionWrite(Collection<IPP> ippList, SID sid, int changeCount, long discardTime) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
         arguments.add(discardTime);
         return send(ippList, RpcMessage.WRITE, arguments) != null;
     }
+    
+    public static boolean SessionWrite(IPP ipp, SID sid, int changeCount, long discardTime) {
+        ArrayList<IPP> ippList = new ArrayList<IPP>();
+        ippList.add(ipp);
+        return SessionWrite(ippList, sid, changeCount, discardTime);
+    }
 
-    public static boolean SessionDelete(ArrayList<IPP> ippList, SID sid, int changeCount) {
+    public static boolean SessionDelete(Collection<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
@@ -60,10 +72,10 @@ public class RpcMessageCall extends RpcMessage {
     public static boolean NoOp(IPP ipp) {
         ArrayList<IPP> ipps = new ArrayList<IPP>();
         ipps.add(ipp);
-       return NoOp(ipps);
+        return NoOp(ipps);
     }
     
-    public static boolean NoOp(ArrayList<IPP> ippList) {
+    public static boolean NoOp(Collection<IPP> ippList) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         
         return send(ippList, RpcMessage.NOOP, arguments) != null;
