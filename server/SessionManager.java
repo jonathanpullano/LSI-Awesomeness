@@ -1,19 +1,20 @@
 package server;
 
 import identifiers.CookieVal;
+import identifiers.FormData;
 import identifiers.IPP;
 import identifiers.SID;
 import identifiers.SVN;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import request.Form.FormData;
 import rpc.RpcServer;
 import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageCall.ReadResult;
@@ -78,7 +79,7 @@ public class SessionManager {
         table.put(sid, entry);
         context.setAttribute("data", new FormData(newData, discardTime));
 
-        IPP IppLocal = RpcServer.getInstance().getIPPLocal();
+        IPP ippLocal = RpcServer.getInstance().getIPPLocal();
         ArrayList<IPP> members = SimpleDB.getInstance().getLocalMembers();
 
         IPP ippPrimary = svn.getIppPrime();
@@ -91,18 +92,21 @@ public class SessionManager {
         members.add(0, ippBackup);
         SVN newSvn = null;
         for(IPP ipp : members) {
-            if(ipp.equals(IppLocal) || ipp.isNull())
+            if(ipp.equals(ippLocal) || ipp.isNull())
                 continue;
-            ArrayList<IPP> ippList = new ArrayList<IPP>();
-            ippList.add(ipp);
-            
-            if(RpcMessageCall.SessionWrite(ippList, sid, newChangeCount, discardTime)) {
-                svn = new SVN(newChangeCount, IppLocal, ipp);
+            if(RpcMessageCall.SessionWrite(ipp, sid, newChangeCount, discardTime)) {
+                svn = new SVN(newChangeCount, ippLocal, ipp);
+                HashSet<IPP> set = new HashSet<IPP>();
+                set.add(ippPrimary);
+                set.add(ippBackup);
+                set.remove(ippLocal);
+                set.remove(ipp);
+                RpcMessageCall.SessionDelete(set, sid, newChangeCount);
                 break;
             }
         }
         if(newSvn == null)
-            newSvn = new SVN(newChangeCount, IppLocal, IPP.getNullIpp());
+            newSvn = new SVN(newChangeCount, ippLocal, IPP.getNullIpp());
         return new Cookie(COOKIE_NAME, new CookieVal(sid, newSvn).toString());
     }
 
@@ -135,7 +139,7 @@ public class SessionManager {
         if(result != null)
             return new FormData(result.getData(), result.getDiscardTime());
         return null;
-    }
+    }   
 
     /**
      * Gets a new sessionID

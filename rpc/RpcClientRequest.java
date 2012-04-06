@@ -8,6 +8,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import rpc.message.RpcMessage;
 import rpc.message.RpcMessageCall;
@@ -15,13 +16,13 @@ import rpc.message.RpcMessageReply;
 
 public class RpcClientRequest extends Thread {
     private int opCode;
-    private ArrayList<IPP> ippList;
+    private Collection<IPP> ippList;
     private ArrayList<Object> arguments;
     private ArrayList<Object> results = null;
 
     public final static int SOCKET_TIMEOUT = 2000;
 
-    public RpcClientRequest(ArrayList<IPP> ippList, int opCode, ArrayList<Object> arguments) {
+    public RpcClientRequest(Collection<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         super("ClientRequest");
         this.ippList = ippList;
         this.opCode = opCode;

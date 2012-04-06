@@ -1,9 +1,13 @@
 package request;
 
 import identifiers.CookieVal;
+import identifiers.FormData;
+import identifiers.IPP;
+import identifiers.SID;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -36,31 +40,5 @@ public class Form extends HttpServlet {
         } else
             dispatcher = request.getRequestDispatcher("/WEB-INF/form.jsp");
         dispatcher.forward(request, response);
-    }
-
-    public static class FormData {
-        private String message;
-        private Date expiration;
-
-        public FormData(String message, long expiration) {
-            setMessage(message);
-            setExpiration(expiration);
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public Date getExpiration() {
-            return expiration;
-        }
-
-        public void setExpiration(long expiration) {
-            this.expiration = new Date(expiration);
-        }
     }
 }

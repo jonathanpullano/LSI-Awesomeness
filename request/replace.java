@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import server.SessionManager;
 
 @WebServlet("/replace")
-public class Replace extends HttpServlet {
+public class replace extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
     @Override

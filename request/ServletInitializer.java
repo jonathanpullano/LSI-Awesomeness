@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
 import rpc.RpcServer;
+import server.SessionTable;
 import server.SimpleDB;
 
 public class ServletInitializer extends HttpServlet {
@@ -20,6 +21,9 @@ public class ServletInitializer extends HttpServlet {
         //Start the RPC server
         server.start();
         IPP local = server.getIPPLocal();
+        
+        //Start the garbage collector
+        SessionTable.getInstance().run();
 
         //TODO: Test on AWS
         SimpleDB db = SimpleDB.getInstance();
