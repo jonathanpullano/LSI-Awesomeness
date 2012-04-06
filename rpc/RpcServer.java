@@ -14,6 +14,7 @@ import rpc.message.RpcMessage;
 import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageReply;
 import server.SessionTable;
+import server.SimpleDB;
 import server.SessionTable.Entry;
 
 public class RpcServer extends Thread {
@@ -53,6 +54,8 @@ public class RpcServer extends Thread {
                 byte[] inBuf = new byte[RpcMessage.BUFFER_SIZE];
                 DatagramPacket recvPkt = new DatagramPacket(inBuf, inBuf.length);
                 rpcSocket.receive(recvPkt);
+                IPP recvIPP = new IPP(recvPkt.getAddress(), recvPkt.getPort());
+                SimpleDB.getInstance().putLocalMember(recvIPP);
                 InetAddress returnAddr = recvPkt.getAddress();
                 int returnPort = recvPkt.getPort();
                 RpcMessageCall recvMessage = (RpcMessageCall) RpcMessage.readByteStream(inBuf);

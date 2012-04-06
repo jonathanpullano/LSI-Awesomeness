@@ -13,6 +13,7 @@ import java.util.Collection;
 import rpc.message.RpcMessage;
 import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageReply;
+import server.SimpleDB;
 
 public class RpcClientRequest extends Thread {
     private int opCode;
@@ -65,7 +66,9 @@ public class RpcClientRequest extends Thread {
                 inMsg = (RpcMessageReply) RpcMessage.readByteStream(inBuf);
             } while( inMsg.getCallID() != callID );
         } catch(InterruptedIOException iioe) {
-            // timeout
+            //All sent messages must have timed out
+            for(IPP address : ippList)
+                SimpleDB.getInstance().deleteLocalMember(address);
             results = null;
             return;
         } catch(IOException ioe) {
