@@ -167,4 +167,13 @@ public class SessionManager {
         cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
+
+    public static void logout(CookieVal cookieVal) {
+        SessionTable.getInstance().destroySession(cookieVal.getSid());
+        HashSet<IPP> servers = new HashSet<IPP>();
+        servers.add(cookieVal.getSvn().getIppBackup());
+        servers.add(cookieVal.getSvn().getIppPrime());
+        servers.remove(RpcServer.getInstance().getIPPLocal());
+        RpcMessageCall.SessionDelete(servers, cookieVal.getSid(), cookieVal.getSvn().getChangeCount());
+    }
 }
