@@ -94,8 +94,8 @@ public class SessionManager {
                 continue;
             ArrayList<IPP> ippList = new ArrayList<IPP>();
             ippList.add(ipp);
-            ArrayList<Object> ack = RpcMessageCall.SessionWrite(ippList, sid, newChangeCount, discardTime);
-            if(ack != null) {
+            
+            if(RpcMessageCall.SessionWrite(ippList, sid, newChangeCount, discardTime)) {
                 svn = new SVN(newChangeCount, IppLocal, ipp);
                 break;
             }

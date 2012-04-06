@@ -24,6 +24,8 @@ public class ServletInitializer extends HttpServlet {
         //TODO: Test on AWS
         SimpleDB db = SimpleDB.getInstance();
         db.createDomain(SimpleDB.MEMBER_LIST_DOMAIN);
-        db.putMember(SimpleDB.MEMBER_LIST_DOMAIN, local);
+        
+        //TODO FIX ME to do periodic refresh... so spawn thread etc...
+        //db.putMember(SimpleDB.MEMBER_LIST_DOMAIN, local);
     }
 }

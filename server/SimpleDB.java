@@ -3,8 +3,8 @@ package server;
 import identifiers.IPP;
 
 import java.io.PrintWriter;
-import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,14 +24,16 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 
 public class SimpleDB {
 
-    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
+    public static final String MEMBER_LIST_DOMAIN = "SDBMbrList";
 
 	private static boolean DEBUG = false;
 
 	private static BasicAWSCredentials oAWSCredentials = null;
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String AttrName = "IPP";
-
+	
+	private static HashSet<String> mbrList = new HashSet<String>();
+	
 	private static SimpleDB db = new SimpleDB();
 
 	private SimpleDB() {
@@ -52,7 +54,28 @@ public class SimpleDB {
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
 
-	public void deleteMember(String domain, IPP ipp){
+	public void memberRefresh(){
+		//Set the local MbrSet to empty.
+		mbrList.clear();
+		
+		//Read the SDBMbrList from SimpleDB.
+		ArrayList<String> myMbrList = getMembers(MEMBER_LIST_DOMAIN);
+		
+		//Send a NoOp to each member RPC to each IPP in the list (except IPPself) and wait for responses. 
+		//(You may want to do this more than once, to deal with dropped packets). Note that by the basic membership 
+		//protocol of Section 3.9 every response will cause a server to be added to the MbrSet.
+		for(String member : myMbrList){
+			IPP localMember = IPP.getIPP(member);
+		}
+			
+		
+		//Add IPPself to the MbrSet.
+		
+		//Write this new MbrSet into the SDBMbrList on SimpleDB.
+		
+	}
+	
+	public void deleteDBMember(String domain, IPP ipp){
 		String membersUUID = getMembersUUID(domain, ipp);
 		if(membersUUID == null){
 			if(DEBUG) System.out.println("No such member found (" + ipp.toString() + ")");
@@ -64,6 +87,14 @@ public class SimpleDB {
 		sdbc.deleteAttributes(deleteAttributesRequest );
 	}
 
+	public void deleteLocalMember(IPP ipp){
+		//TODO delete local member from list
+	}
+	
+	public void putLocalMember(IPP ipp){
+		//TODO put local member from list
+	}
+	
 	private String getMembersUUID(String domain, IPP ipp){
 		List<Item> members = getMembersDetails(domain);
 
@@ -90,7 +121,7 @@ public class SimpleDB {
 		return exists;
 	}
 
-	public void putMember(String domain, IPP ipp){
+	public void putDBMember(String domain, IPP ipp){
 		if(exists(domain, ipp)){
 			if(DEBUG) System.out.println("Member already exists in membership list.");
 			return;
@@ -158,6 +189,14 @@ public class SimpleDB {
 
 	public static SimpleDB getInstance() {
 	    return db;
+	}
+
+	public static HashSet<String> getMbrList() {
+		return mbrList;
+	}
+
+	public static void setMbrList(HashSet<String> mbrList) {
+		SimpleDB.mbrList = mbrList;
 	}
 
 	public ArrayList<IPP> getMemberIpps() {

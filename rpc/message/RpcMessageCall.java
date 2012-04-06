@@ -33,7 +33,7 @@ public class RpcMessageCall extends RpcMessage {
         while(client.getState() != Thread.State.TERMINATED);
         return client.getResults();
     }
-
+    
     public static ReadResult SessionRead(ArrayList<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
@@ -42,26 +42,33 @@ public class RpcMessageCall extends RpcMessage {
         return new ReadResult((String)results.get(0), (Long)results.get(1));
     }
 
-    public static ArrayList<Object> SessionWrite(ArrayList<IPP> ippList, SID sid, int changeCount, long discardTime) {
+    public static boolean SessionWrite(ArrayList<IPP> ippList, SID sid, int changeCount, long discardTime) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
         arguments.add(discardTime);
-        return send(ippList, RpcMessage.WRITE, arguments);
+        return send(ippList, RpcMessage.WRITE, arguments) != null;
     }
 
-    public static ArrayList<Object> SessionDelete(ArrayList<IPP> ippList, SID sid, int changeCount) {
+    public static boolean SessionDelete(ArrayList<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
-        return send(ippList, RpcMessage.DELETE, arguments);
+        return send(ippList, RpcMessage.DELETE, arguments) != null;
     }
 
-    public static ArrayList<Object> NoOp(ArrayList<IPP> ippList) {
+    public static boolean NoOp(IPP ipp) {
+        ArrayList<IPP> ipps = new ArrayList<IPP>();
+        ipps.add(ipp);
+       return NoOp(ipps);
+    }
+    
+    public static boolean NoOp(ArrayList<IPP> ippList) {
         ArrayList<Object> arguments = new ArrayList<Object>();
-        return send(ippList, RpcMessage.NOOP, arguments);
+        
+        return send(ippList, RpcMessage.NOOP, arguments) != null;
     }
-
+    
     public static class ReadResult {
         String data;
         long discardTime;
