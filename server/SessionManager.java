@@ -80,11 +80,12 @@ public class SessionManager {
         context.setAttribute("data", new FormData(newData, discardTime));
 
         IPP ippLocal = RpcServer.getInstance().getIPPLocal();
-        ArrayList<IPP> members = SimpleDB.getInstance().getMemberIpps();
+        ArrayList<IPP> members = SimpleDB.getInstance().getLocalMembers();
 
         IPP ippPrimary = svn.getIppPrime();
         IPP ippBackup = svn.getIppBackup();
-        //move primary and backup to front of list
+        
+        //Check primary and backup first
         members.remove(ippPrimary);
         members.remove(ippBackup);
         members.add(0, ippPrimary);

@@ -68,7 +68,6 @@ public class IPP implements Serializable{
     	 try {
     	     return new IPP(InetAddress.getByName("0.0.0.0"), 0);
          } catch (UnknownHostException e) {
-             // TODO Auto-generated catch block
              e.printStackTrace();
          }
     	 return null;

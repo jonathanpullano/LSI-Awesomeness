@@ -3,36 +3,42 @@ package server;
 import identifiers.IPP;
 
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
+import java.util.Random;
 
+import rpc.RpcServer;
+import rpc.message.RpcMessageCall;
 import util.Configuration;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
-import com.amazonaws.services.simpledb.model.Attribute;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
-import com.amazonaws.services.simpledb.model.DeleteAttributesRequest;
 import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
 import com.amazonaws.services.simpledb.model.Item;
 import com.amazonaws.services.simpledb.model.PutAttributesRequest;
 import com.amazonaws.services.simpledb.model.ReplaceableAttribute;
 import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
+import com.amazonaws.services.simpledb.model.UpdateCondition;
+
 
 public class SimpleDB {
 
-    public static final String MEMBER_LIST_DOMAIN = "SDBMbrList";
+    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
 
-	private static boolean DEBUG = false;
-
+	private static boolean DEBUG = true;
+	
+	private static int ROUND_SLEEP_TIME = 5;
+	
 	private static BasicAWSCredentials oAWSCredentials = null;
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String AttrName = "IPP";
 	
-	private static HashSet<String> mbrList = new HashSet<String>();
+	private static HashSet<IPP> localMbrList = new HashSet<IPP>();
 	
 	private static SimpleDB db = new SimpleDB();
 
@@ -56,116 +62,93 @@ public class SimpleDB {
 
 	public void memberRefresh(){
 		//Set the local MbrSet to empty.
-		mbrList.clear();
+		localMbrList.clear();
 		
 		//Read the SDBMbrList from SimpleDB.
-		ArrayList<String> myMbrList = getMembers(MEMBER_LIST_DOMAIN);
+		ArrayList<IPP> DBMbrList = getMembers();
 		
 		//Send a NoOp to each member RPC to each IPP in the list (except IPPself) and wait for responses. 
 		//(You may want to do this more than once, to deal with dropped packets). Note that by the basic membership 
 		//protocol of Section 3.9 every response will cause a server to be added to the MbrSet.
-		for(String member : myMbrList){
-			IPP localMember = IPP.getIPP(member);
+		for(IPP ipp : DBMbrList){
+			if(RpcMessageCall.NoOp(ipp))
+				localMbrList.add(ipp);
 		}
 			
-		
 		//Add IPPself to the MbrSet.
+		InetAddress ip = null;
+		try {
+			ip = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		
+		IPP ipp = new IPP(ip, RpcServer.getInstance().getPort());
+		localMbrList.add(ipp);
+		
 		
 		//Write this new MbrSet into the SDBMbrList on SimpleDB.
+		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
 		
-	}
-	
-	public void deleteDBMember(String domain, IPP ipp){
-		String membersUUID = getMembersUUID(domain, ipp);
-		if(membersUUID == null){
-			if(DEBUG) System.out.println("No such member found (" + ipp.toString() + ")");
-			return;
-		} else
-			if(DEBUG) System.out.println("Deleting member (" + ipp.toString() + ")");
-
-		DeleteAttributesRequest deleteAttributesRequest = new DeleteAttributesRequest(domain, getMembersUUID(domain, ipp));
-		sdbc.deleteAttributes(deleteAttributesRequest );
+		newAttributes.add(new ReplaceableAttribute(AttrName,  trimAndToString(localMbrList), false));
+		PutAttributesRequest newRequest = new PutAttributesRequest();
+		
+		UpdateCondition expected = new UpdateCondition();
+		expected.setName(AttrName);
+		expected.setValue(trimAndToString(DBMbrList));
+		
+		newRequest.setDomainName(MEMBER_LIST_DOMAIN);
+		newRequest.setItemName(AttrName);
+		
+		newRequest.setExpected(expected);
+		newRequest.setAttributes(newAttributes);
+		
+		try {
+			sdbc.putAttributes(newRequest);
+		} catch(Exception e){
+			if(DEBUG) System.out.println("Cought exception.. Probably an update exception");
+		}
 	}
 
 	public void deleteLocalMember(IPP ipp){
-		//TODO delete local member from list
+		localMbrList.remove(ipp);
 	}
 	
 	public void putLocalMember(IPP ipp){
-		//TODO put local member from list
+		localMbrList.add(ipp);
 	}
 	
-	private String getMembersUUID(String domain, IPP ipp){
-		List<Item> members = getMembersDetails(domain);
-
-		for(Item member : members){
-			List<Attribute> attrs = member.getAttributes();
-			for(Attribute attr : attrs){
-				if(ipp.toString().equals(attr.getValue()))
-					return member.getName();
-			}
-		}
-		return null;
+	public String trimAndToString(HashSet<IPP> set){
+		return set.toString().replace("[", "").replace("]", "");
 	}
-
-	private boolean exists(String domain, IPP ipp){
-		boolean exists = false;
-		List<Item> members = getMembersDetails(domain);
-		for(Item member : members){
-			List<Attribute> attrs = member.getAttributes();
-			for(Attribute attr : attrs){
-				if(ipp.toString().equals(attr.getValue()))
-					exists = true;
-			}
-		}
-		return exists;
+	
+	public String trimAndToString(ArrayList<IPP> list){
+		return list.toString().replace("[", "").replace("]", "");
 	}
-
-	public void putDBMember(String domain, IPP ipp){
-		if(exists(domain, ipp)){
-			if(DEBUG) System.out.println("Member already exists in membership list.");
-			return;
-		}else
-			if(DEBUG) System.out.println("Adding IP-P " + ipp.toString() + " to " + domain + "");
-
-
-		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		newAttributes.add(new ReplaceableAttribute(AttrName, ipp.toString(), false));
-		PutAttributesRequest newRequest = new PutAttributesRequest();
-
-		newRequest.setDomainName(domain);
-		newRequest.setItemName(UUID.randomUUID().toString());
-		newRequest.setAttributes(newAttributes);
-
-
-		sdbc.putAttributes(newRequest);
+	public ArrayList<IPP> getLocalMembers(){
+		ArrayList<IPP> result = new ArrayList<IPP>();
+		result.addAll(localMbrList);
+		return result;
 	}
-
-	private List<Item> getMembersDetails(String domain){
-
-		String query = "select * from " + domain;
+	
+	public ArrayList<IPP> getMembers(){
+		ArrayList<IPP> servers = new ArrayList<IPP>();
+		String query = "select " + AttrName + " from " + MEMBER_LIST_DOMAIN;
 		SelectRequest selectRequest = new SelectRequest(query);
 		SelectResult result = sdbc.select(selectRequest);
 		List<Item> items = result.getItems();
-		return items;
-	}
-
-	public ArrayList<String> getMembers(String domain){
-
-		String query = "select * from " + domain;
-		SelectRequest selectRequest = new SelectRequest(query);
-		SelectResult result = sdbc.select(selectRequest);
-		List<Item> items = result.getItems();
-		if(DEBUG) System.out.println(items);
-
-		ArrayList<String> serverList = new ArrayList<String>();
-
-		for(Item it : items){
-			List<Attribute> attrs = it.getAttributes();
-			for(Attribute attr : attrs)
-				serverList.add(attr.getValue());
+		
+		/**
+		 * We always use one attribute so we get 0th item and get the 0th attribute 
+		 */
+		String row = items.get(0).getAttributes().get(0).getValue();
+		String[] serverList = row.split(", ");
+		
+		for(String ipp : serverList){
+			IPP ippMember = IPP.getIPP(ipp);
+			servers.add(ippMember);
 		}
-		return serverList;
+		return servers;
 	}
 
 	public void listDomains(PrintWriter out) {
@@ -174,7 +157,12 @@ public class SimpleDB {
             out.println("Domain: " + domainName);
         }
 	}
-
+	
+	public void listDomains() {
+	    for(String domainName : sdbc.listDomains().getDomainNames()){
+	    	if(DEBUG) System.out.println("Domain: " + domainName);
+        }
+	}
 	private String getKey () {
 		Configuration config = Configuration.getInstance();
 		if(DEBUG) System.out.println("Got accessKey: " + config.getProperty("accessKey"));
@@ -191,19 +179,23 @@ public class SimpleDB {
 	    return db;
 	}
 
-	public static HashSet<String> getMbrList() {
-		return mbrList;
+	public void setLocalMbrList(HashSet<IPP> localMbrList) {
+		SimpleDB.localMbrList = localMbrList;
 	}
-
-	public static void setMbrList(HashSet<String> mbrList) {
-		SimpleDB.mbrList = mbrList;
-	}
-
-	public ArrayList<IPP> getMemberIpps() {
-	    ArrayList<IPP> memberSet = new ArrayList<IPP>();
-	    ArrayList<String> stringSet = getMembers(MEMBER_LIST_DOMAIN);
-	    for(String ippString : stringSet)
-	        memberSet.add(IPP.getIPP(ippString));
-	    return memberSet;
+	
+	public void run(){
+		try {
+			Random generator = new Random();
+			double probOfRefresh = 1.0/localMbrList.size();
+			double rand = generator.nextDouble();
+			System.out.println(probOfRefresh + "\n" + rand);
+			
+			if(rand <= probOfRefresh)
+				memberRefresh();
+			
+			Thread.sleep(ROUND_SLEEP_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

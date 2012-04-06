@@ -10,3 +10,5 @@ bin/Objects/SID.class
 
 bin/server/SessionManager.class
 WebContent/AwsCredentials.properties
+
+WebContent/WEB-INF/AwsCredentials.properties
