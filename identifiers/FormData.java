@@ -57,7 +57,6 @@ public class FormData {
     	case cache:
     		return RpcServer.getInstance().getIPPLocal();
     	}
-    	
 		return null;
     }
 
@@ -107,6 +106,18 @@ public class FormData {
 
     public Date getExpiration() {
         return expiration;
+    }
+    
+    public String getHTML() {
+        if(newUpdated) {
+            return "<p>Updated/New Session:</p>" +
+                   "<p>IppPrimary: " + getIppPrimary() + "</p>" +
+                   "<p>IppBackup: " + getIppBackup() + "</p>" +
+                   "<p>Discard Time: " + getDiscardTime() + "</p>";
+        } else {
+            return "<p>Existing Session:</p> +" +
+                   "<p>" + getLoc() + ":" + getLocIPP() + "</p>";
+        }
     }
 
     public IPP getServerID() {
