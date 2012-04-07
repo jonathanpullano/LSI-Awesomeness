@@ -1,5 +1,6 @@
 package server;
 
+import identifiers.FormData.Location;
 import identifiers.SID;
 
 import java.util.Calendar;
@@ -56,6 +57,8 @@ public class SessionTable extends Thread {
             return sessionTable.get(sessionID);
         if(DEBUG) System.out.println("Returning a cached entry");
         if(DEBUG) System.out.println("Cache entry: " + cacheTable.get(sessionID)); 
+        if(cacheTable.containsKey(sessionID))
+        	FormManager.getInstance().getData().setLoc(Location.cache);
         return cacheTable.get(sessionID);
     }
 
@@ -125,8 +128,10 @@ public class SessionTable extends Thread {
     private class CacheTable extends LinkedHashMap<SID, Entry> {
         private static final long serialVersionUID = -7317831993274795114L;
         protected boolean removeEldestEntry(Map.Entry<SID, Entry> eldest) {
-            if(size() > MAX_CACHE_SIZE)
+            if(size() > MAX_CACHE_SIZE){
+            	FormManager.getInstance().getData().setEviction(eldest.getKey());
                 return true;
+            }
             return false;
         }
     }
