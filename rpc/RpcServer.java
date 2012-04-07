@@ -19,7 +19,7 @@ import server.SessionTable.Entry;
 
 public class RpcServer extends Thread {
 
-    private static RpcServer theServer = new RpcServer();
+    private static RpcServer theServer;
     private DatagramSocket rpcSocket;
     private static int callIDCounter;
     private static IPP ippLocal;
@@ -136,8 +136,9 @@ public class RpcServer extends Thread {
      * @return
      */
     public int callID() {
-        //getInstance() ensures the server is started first
-        return getInstance().callIDCounter++;
+        if(theServer == null)
+            theServer = new RpcServer();
+        return callIDCounter++;
     }
 
     /**
@@ -145,8 +146,9 @@ public class RpcServer extends Thread {
      * @return
      */
     public int getPort() {
-      //getInstance() ensures the server is started first
-        return getInstance().rpcSocket.getLocalPort();
+        if(theServer == null)
+            theServer = new RpcServer();
+        return rpcSocket.getLocalPort();
     }
 
     /**
@@ -154,7 +156,8 @@ public class RpcServer extends Thread {
      * @return
      */
     public IPP getIPPLocal() {
-      //getInstance() ensures the server is started first
-        return getInstance().ippLocal;
+        if(theServer == null)
+            theServer = new RpcServer();
+        return ippLocal;
     }
 }
