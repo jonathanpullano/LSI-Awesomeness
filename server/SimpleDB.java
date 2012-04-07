@@ -70,10 +70,17 @@ public class SimpleDB {
 		//Send a NoOp to each member RPC to each IPP in the list (except IPPself) and wait for responses. 
 		//(You may want to do this more than once, to deal with dropped packets). Note that by the basic membership 
 		//protocol of Section 3.9 every response will cause a server to be added to the MbrSet.
-		for(IPP ipp : DBMbrList){
+		HashSet<IPP> retrySet = new HashSet<IPP>();
+		for(IPP ipp : DBMbrList) {
 			if(RpcMessageCall.NoOp(ipp))
 				localMbrList.add(ipp);
+			else
+			    retrySet.add(ipp);
 		}
+		for(IPP ipp : retrySet) {
+            if(RpcMessageCall.NoOp(ipp))
+                localMbrList.add(ipp);
+        }
 			
 		//Add IPPself to the MbrSet.
 		InetAddress ip = null;
