@@ -33,7 +33,7 @@ public class SimpleDB {
 
 	private static boolean DEBUG = true;
 	
-	private static int ROUND_SLEEP_TIME = 5;
+	private static int ROUND_SLEEP_TIME = 5000;
 	
 	private static BasicAWSCredentials oAWSCredentials = null;
 	private static AmazonSimpleDBClient sdbc = null;
@@ -50,8 +50,27 @@ public class SimpleDB {
 
 	public void createDomain(String domain){
 		if(DEBUG) System.out.println("Connecting and creating domain (" + domain + ")");
-
 		sdbc.createDomain(new CreateDomainRequest(domain));
+		
+		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
+		newAttributes.add(new ReplaceableAttribute(AttrName,  "", false));
+		PutAttributesRequest newRequest = new PutAttributesRequest();
+		
+		UpdateCondition expected = new UpdateCondition();
+		expected.setName(AttrName);
+		expected.setExists(false);
+		
+		newRequest.setDomainName(MEMBER_LIST_DOMAIN);
+		newRequest.setItemName(AttrName);
+		
+		newRequest.setExpected(expected);
+		newRequest.setAttributes(newAttributes);
+		
+		try {
+			sdbc.putAttributes(newRequest);
+		} catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	public void deleteDomain(String domain){
@@ -104,6 +123,7 @@ public class SimpleDB {
 		UpdateCondition expected = new UpdateCondition();
 		expected.setName(AttrName);
 		expected.setValue(trimAndToString(DBMbrList));
+		expected.setExists(true);
 		
 		newRequest.setDomainName(MEMBER_LIST_DOMAIN);
 		newRequest.setItemName(AttrName);
@@ -114,7 +134,7 @@ public class SimpleDB {
 		try {
 			sdbc.putAttributes(newRequest);
 		} catch(Exception e){
-			if(DEBUG) System.out.println("Cought exception.. Probably an update exception");
+			e.printStackTrace();
 		}
 	}
 
@@ -149,9 +169,12 @@ public class SimpleDB {
 		/**
 		 * We always use one attribute so we get 0th item and get the 0th attribute 
 		 */
+		if(items.size() == 0)
+			return servers;
+		
 		String row = items.get(0).getAttributes().get(0).getValue();
 		String[] serverList = row.split(", ");
-		
+		System.out.println("SERVER LIST ******* (" );
 		for(String ipp : serverList){
 			IPP ippMember = IPP.getIPP(ipp);
 			servers.add(ippMember);
@@ -186,7 +209,12 @@ public class SimpleDB {
 	public static SimpleDB getInstance() {
 	    return db;
 	}
-
+	
+//	public static void main(String[] args){
+//		SimpleDB db = SimpleDB.getInstance();
+//		db.deleteDomain(MEMBER_LIST_DOMAIN);
+//	}
+	
 	public void run() {
 	    memberRefresh();
 	    while(true) {

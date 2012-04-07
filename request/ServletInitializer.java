@@ -23,6 +23,11 @@ public class ServletInitializer extends HttpServlet {
 
         //TODO: Test on AWS
         SimpleDB db = SimpleDB.getInstance();
+        
+        /**********************************************/
+        /*****/ db.deleteDomain(SimpleDB.MEMBER_LIST_DOMAIN); //DELETE THIS LINE!!!!!!!!
+        /**********************************************/
+        
         db.createDomain(SimpleDB.MEMBER_LIST_DOMAIN);
         db.run();
     }

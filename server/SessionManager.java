@@ -67,7 +67,8 @@ public class SessionManager {
     }
 
     public static Cookie newSession(ServletContext context) {
-        return writeRequest(context, DEFAULT_MESSAGE, new SID(getNewSessNum(context), RpcServer.getInstance().getIPPLocal()), new SVN(-1, IPP.getNullIpp(), IPP.getNullIpp())); //TODO:fix
+        return writeRequest(context, DEFAULT_MESSAGE, new SID(getNewSessNum(context), RpcServer.getInstance().getIPPLocal()), 
+        		new SVN(-1, IPP.getNullIpp(), IPP.getNullIpp())); 
     }
 
     public static Cookie writeRequest(ServletContext context, String newData, SID sid, SVN svn) {
