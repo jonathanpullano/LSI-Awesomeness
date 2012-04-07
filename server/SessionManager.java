@@ -64,9 +64,10 @@ public class SessionManager {
             }
         }
         //No cookie found, so make a new one
-        if(ourCookie == null)
+        if(ourCookie == null){
         	if(DEBUG) System.out.println("ourCookie is null");
             ourCookie = newSession(context);
+        }
         ourCookie.setMaxAge(COOKIE_TIMEOUT);
         response.addCookie(ourCookie);
         return ourCookie;
