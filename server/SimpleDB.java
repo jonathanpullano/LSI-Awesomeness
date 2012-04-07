@@ -27,7 +27,7 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 
-public class SimpleDB {
+public class SimpleDB extends Thread {
 
     public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
 
@@ -91,7 +91,11 @@ public class SimpleDB {
 		//(You may want to do this more than once, to deal with dropped packets). Note that by the basic membership 
 		//protocol of Section 3.9 every response will cause a server to be added to the MbrSet.
 		HashSet<IPP> retrySet = new HashSet<IPP>();
+		IPP ippLocal = RpcServer.getInstance().getIPPLocal();
+		
 		for(IPP ipp : DBMbrList) {
+		    if(ippLocal.equals(ipp))
+		        continue;
 			if(RpcMessageCall.NoOp(ipp))
 				localMbrList.add(ipp);
 			else
@@ -102,17 +106,9 @@ public class SimpleDB {
                 localMbrList.add(ipp);
         }
 			
-		//Add IPPself to the MbrSet.
-		InetAddress ip = null;
-		try {
-			ip = InetAddress.getLocalHost();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		
-		IPP ipp = new IPP(ip, RpcServer.getInstance().getPort());
-		System.out.println("RPCServer port: " + RpcServer.getInstance().getPort() + "IPP port " + ipp.getPort());
-		localMbrList.add(ipp);
+		//Add IPPself to the MbrSet
+		System.out.println("Local IPP: " + ippLocal.toString());
+		localMbrList.add(ippLocal);
 		
 		
 		//Write this new MbrSet into the SDBMbrList on SimpleDB.

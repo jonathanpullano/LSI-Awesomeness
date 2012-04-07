@@ -19,7 +19,7 @@ public class ServletInitializer extends HttpServlet {
         RpcServer.getInstance().start();
         
         //Start the garbage collector
-        SessionTable.getInstance().run();
+        SessionTable.getInstance().start();
 
         //TODO: Test on AWS
         SimpleDB db = SimpleDB.getInstance();
@@ -29,6 +29,6 @@ public class ServletInitializer extends HttpServlet {
         /**********************************************/
         
         db.createDomain(SimpleDB.MEMBER_LIST_DOMAIN);
-        db.run();
+        db.start();
     }
 }
