@@ -52,8 +52,10 @@ public class SessionManager {
             //We found a cookie, verify it's valid
             if(ourCookie != null) {
                 SessionTable table = SessionTable.getInstance();
-                System.out.println("Cookie was found and here it is (" + ourCookie.getValue() + ")");
+                if(DEBUG) System.out.println("Cookie was found and here it is (" + ourCookie.getValue() + ")");
                 SessionTable.Entry entry = table.get(CookieVal.getCookieVal(ourCookie.getValue()).getSid());
+                if(DEBUG) System.out.println("SessionTable Cookie version (" + entry.version + ")");
+
                 if(entry == null) {
                     //It's mangled. Throw it out.
                     ourCookie = null;
