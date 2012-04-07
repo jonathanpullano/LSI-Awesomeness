@@ -12,7 +12,7 @@ import java.util.HashMap;
  */
 public class FormManager {
     private static FormManager theManager = new FormManager();
-    private HashMap<Long, FormData> formData;
+    private HashMap<Long, FormData> formData = new HashMap<Long, FormData>();
     
     private FormManager() {}
     
