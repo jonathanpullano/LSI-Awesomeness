@@ -11,11 +11,6 @@ import java.util.Map;
 
 import rpc.message.RpcMessageCall.ReadResult;
 
-/**
- * Manages the Session Table
- * @author jonathan
- *
- */
 public class SessionTable extends Thread {
     public static SessionTable table = new SessionTable();
     
@@ -24,10 +19,6 @@ public class SessionTable extends Thread {
     
     final public static int MAX_CACHE_SIZE = 3;
 
-    /**
-     * Represents a session
-     * @author jonathan
-     */
     public static class Entry {
       public int version;
       public String message;
@@ -61,6 +52,7 @@ public class SessionTable extends Thread {
     public synchronized Entry get(SID sessionID) {
         if(sessionTable.containsKey(sessionID))
             return sessionTable.get(sessionID);
+        
         return cacheTable.get(sessionID);
     }
 

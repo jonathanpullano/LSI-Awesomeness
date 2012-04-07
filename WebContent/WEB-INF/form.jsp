@@ -32,7 +32,7 @@ ServerID: ${data.serverID}
 MemberSet: ${data.memberSet}
 </p>
 <p> 
-Session Data found in: ${data.Loc} (${data.LocIPP})
+Session Data found in: ${data.loc} (${data.locIPP})
 </p>
 </body>
 </html>

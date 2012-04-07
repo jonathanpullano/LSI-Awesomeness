@@ -25,6 +25,7 @@ public class Form extends HttpServlet {
         throws ServletException, IOException {
 
         Cookie cookie = SessionManager.getCookie(getServletContext(), request, response);
+        
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
         FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
 

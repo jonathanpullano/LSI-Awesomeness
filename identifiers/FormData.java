@@ -10,7 +10,7 @@ public class FormData {
     private String message;
     private Date expiration;
 
-    public enum Location { ippPrimary, ippBackup, cache };
+    public enum Location { ippPrimary, ippBackup, cache, NotFound };
     private Location loc;
     private boolean newUpdated;
     private IPP ippPrimary;
@@ -41,10 +41,15 @@ public class FormData {
     }
 
     public Location getLoc() {
+    	if(loc == null)
+    		return Location.NotFound;
         return loc;
     }
     
     public IPP getLocIPP(){
+    	if(loc == null)
+    		return IPP.getNullIpp();
+    	
     	switch(loc){
     	case ippPrimary:
     		return getIppPrimary();
