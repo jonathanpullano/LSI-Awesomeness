@@ -29,6 +29,7 @@ public class memberRefresh extends HttpServlet {
         Cookie cookie = SessionManager.getCookie(getServletContext(), request, response);
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
         FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
+        request.setAttribute("data", data);
 		
         SimpleDB db = SimpleDB.getInstance();
 		db.memberRefresh();
