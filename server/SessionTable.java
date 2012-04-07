@@ -19,6 +19,8 @@ public class SessionTable extends Thread {
     
     final public static int MAX_CACHE_SIZE = 3;
 
+	private static final boolean DEBUG = true;
+
     public static class Entry {
       public int version;
       public String message;
@@ -52,7 +54,8 @@ public class SessionTable extends Thread {
     public synchronized Entry get(SID sessionID) {
         if(sessionTable.containsKey(sessionID))
             return sessionTable.get(sessionID);
-        
+        if(DEBUG) System.out.println("Returning a cached entry");
+        if(DEBUG) System.out.println("Cache entry: " + cacheTable.get(sessionID)); 
         return cacheTable.get(sessionID);
     }
 

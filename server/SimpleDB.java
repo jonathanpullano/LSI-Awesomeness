@@ -29,7 +29,7 @@ public final class SimpleDB extends Thread {
 
     public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
 
-	private static boolean DEBUG = true;
+	private static boolean DEBUG = false;
 	
 	private static int ROUND_SLEEP_TIME = 5000;
 	
@@ -105,7 +105,7 @@ public final class SimpleDB extends Thread {
         }
 			
 		//Add IPPself to the MbrSet
-		System.out.println("Local IPP: " + ippLocal.toString());
+		
 		localMbrList.add(ippLocal);
 		
 		
@@ -164,7 +164,7 @@ public final class SimpleDB extends Thread {
 		List<Item> items = result.getItems();
 		
 		if(items.size() == 0){
-			System.out.println("items size returning");
+			if(DEBUG) System.out.println("items size returning");
 			return servers;
 		}
 		
@@ -172,7 +172,7 @@ public final class SimpleDB extends Thread {
 		
 		String row = items.get(0).getAttributes().get(0).getValue();
 		if(row.equals(" ")){
-			System.out.println("row empty returning");
+			if(DEBUG) System.out.println("Got an empty row, implying no servers in DB");
 			return servers;
 		}
 		String[] serverList = row.split(", ");
