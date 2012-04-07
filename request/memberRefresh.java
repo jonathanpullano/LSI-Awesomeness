@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import server.FormManager;
 import server.SessionManager;
 import server.SimpleDB;
 
@@ -24,6 +25,7 @@ public class memberRefresh extends HttpServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
         throws ServletException, IOException {
+        FormManager.getInstance().newRequest();
         Cookie cookie = SessionManager.getCookie(getServletContext(), request, response);
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
         FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
@@ -38,5 +40,6 @@ public class memberRefresh extends HttpServlet {
         } else
             dispatcher = request.getRequestDispatcher("/WEB-INF/form.jsp");
         dispatcher.forward(request, response);
+        FormManager.getInstance().endRequest();
     }
 }

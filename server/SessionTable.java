@@ -120,11 +120,8 @@ public class SessionTable extends Thread {
     }
     
     private class CacheTable extends LinkedHashMap<SID, Entry> {
-
-		private static final long serialVersionUID = 1L;
-
-		protected boolean removeEldestEntry(Map.Entry eldest) {
-        	
+        private static final long serialVersionUID = -7317831993274795114L;
+        protected boolean removeEldestEntry(Map.Entry<SID, Entry> eldest) {
             if(size() > MAX_CACHE_SIZE)
                 return true;
             return false;

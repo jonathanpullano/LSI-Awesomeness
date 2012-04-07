@@ -6,6 +6,12 @@ import java.util.Date;
 import rpc.RpcServer;
 import server.SimpleDB;
 
+/**
+ * A Javabean-ish data structure passed to 
+ * the jsp page containing view data to render
+ * as per MVC pattern
+ * @author jonathanpullano
+ */
 public class FormData {
     private String message;
     private Date expiration;
@@ -15,29 +21,22 @@ public class FormData {
     private boolean newUpdated;
     private IPP ippPrimary;
     private IPP ippBackup;
-    private long expTime;
     private long discardTime;
     private SID eviction;
-
+    
+    public FormData() {}
+    
     public FormData(String message, long expiration) {
-        setMessage(message);
-        setExpiration(expiration);
+        this.message = message;
+        this.expiration = new Date(expiration);
     }
-
+    
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public Date getExpiration() {
-        return expiration;
-    }
-
-    public IPP getServerID() {
-        return RpcServer.getInstance().getIPPLocal();
     }
 
     public Location getLoc() {
@@ -62,28 +61,56 @@ public class FormData {
 		return null;
     }
 
+    public void setLoc(Location loc) {
+        this.loc = loc;
+    }
+
     public boolean isNewUpdated() {
         return newUpdated;
+    }
+
+    public void setNewUpdated(boolean newUpdated) {
+        this.newUpdated = newUpdated;
     }
 
     public IPP getIppPrimary() {
         return ippPrimary;
     }
 
+    public void setIppPrimary(IPP ippPrimary) {
+        this.ippPrimary = ippPrimary;
+    }
+
     public IPP getIppBackup() {
         return ippBackup;
     }
 
-    public long getExpTime() {
-        return expTime;
+    public void setIppBackup(IPP ippBackup) {
+        this.ippBackup = ippBackup;
     }
 
     public long getDiscardTime() {
         return discardTime;
     }
 
+    public void setDiscardTime(long discardTime) {
+        this.discardTime = discardTime;
+    }
+
     public SID getEviction() {
         return eviction;
+    }
+
+    public void setEviction(SID eviction) {
+        this.eviction = eviction;
+    }
+
+    public Date getExpiration() {
+        return expiration;
+    }
+
+    public IPP getServerID() {
+        return RpcServer.getInstance().getIPPLocal();
     }
 
     public ArrayList<IPP> getMemberSet() {

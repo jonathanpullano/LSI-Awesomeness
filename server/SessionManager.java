@@ -2,6 +2,7 @@ package server;
 
 import identifiers.CookieVal;
 import identifiers.FormData;
+import identifiers.FormData.Location;
 import identifiers.IPP;
 import identifiers.SID;
 import identifiers.SVN;
@@ -120,7 +121,10 @@ public class SessionManager {
         if(ippPrimary.equals(ippLocal)) {
             //We are the primary server, so return the data
             Entry entry = SessionTable.getInstance().get(sid);
-            return new FormData(entry.message, entry.version);
+            FormData formData = new FormData(entry.message, entry.version);
+            //formData.setLocation(Location.ippPrimary);
+            //formData.
+            return formData;
         } else if(ippBackup.isNull()) {
             //Backup is null. Trigger self-repair case from 3.4
             ippBackup = ippLocal;

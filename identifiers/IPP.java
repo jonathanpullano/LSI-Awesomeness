@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+/**
+ * Represents a ServerID, as defined in spec
+ * @author jonathanpullano
+ */
 public class IPP implements Serializable{
 	private static final long serialVersionUID = 5041613869405327697L;
 	private InetAddress ip;
