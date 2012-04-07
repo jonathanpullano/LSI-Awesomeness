@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -40,7 +39,7 @@ public class SimpleDB {
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String AttrName = "IPP";
 	
-	private static  Set<IPP> localMbrList = Collections.synchronizedSet(new HashSet<IPP>());
+	private static final HashSet<IPP> localMbrList = new HashSet<IPP>();
 	 
 	private static SimpleDB db = new SimpleDB();
 
@@ -119,11 +118,11 @@ public class SimpleDB {
 		}
 	}
 
-	public void deleteLocalMember(IPP ipp){
+	public synchronized void deleteLocalMember(IPP ipp){
 		localMbrList.remove(ipp);
 	}
 	
-	public void putLocalMember(IPP ipp){
+	public synchronized void putLocalMember(IPP ipp){
 		localMbrList.add(ipp);
 	}
 	
@@ -188,10 +187,6 @@ public class SimpleDB {
 	    return db;
 	}
 
-	public void setLocalMbrList(HashSet<IPP> localMbrList) {
-		SimpleDB.localMbrList = localMbrList;
-	}
-	
 	public void run() {
 	    memberRefresh();
 	    while(true) {

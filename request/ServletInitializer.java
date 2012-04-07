@@ -1,7 +1,5 @@
 package request;
 
-import identifiers.IPP;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 

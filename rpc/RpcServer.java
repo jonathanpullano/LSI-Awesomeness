@@ -14,8 +14,8 @@ import rpc.message.RpcMessage;
 import rpc.message.RpcMessageCall;
 import rpc.message.RpcMessageReply;
 import server.SessionTable;
-import server.SimpleDB;
 import server.SessionTable.Entry;
+import server.SimpleDB;
 
 public class RpcServer extends Thread {
 
@@ -115,7 +115,7 @@ public class RpcServer extends Thread {
         SessionTable table = SessionTable.getInstance();
 
         table.put(sid, new Entry(changeCount, data, discardTime));
-        return new RpcMessageReply(call.getCallID(), new ArrayList());
+        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>());
     }
 
     public RpcMessageReply SessionDelete(RpcMessageCall call) {
@@ -124,11 +124,11 @@ public class RpcServer extends Thread {
         SessionTable table = SessionTable.getInstance();
         table.destroySession(sid, changeCount);
 
-        return new RpcMessageReply(call.getCallID(), new ArrayList());
+        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>());
     }
 
     public RpcMessageReply NoOp(RpcMessageCall call) {
-        return new RpcMessageReply(call.getCallID(), new ArrayList());
+        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>());
     }
 
     /**

@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import server.SessionManager;
-import server.SessionTable;
 
 @WebServlet("/logout")
 public class logout extends HttpServlet {
@@ -29,7 +28,6 @@ public class logout extends HttpServlet {
         Cookie cookie = SessionManager.getCookie(context, request, response);
 
         //Erase the session
-        SessionTable table = SessionTable.getInstance();
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
         SessionManager.logout(cookieVal);
 

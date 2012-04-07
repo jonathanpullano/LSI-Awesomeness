@@ -14,20 +14,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import server.SessionManager;
+import server.SimpleDB;
 
-@WebServlet("/form")
-public class Form extends HttpServlet {
+@WebServlet("/memberRefresh")
+public class memberRefresh extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
     @Override
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
         throws ServletException, IOException {
-
         Cookie cookie = SessionManager.getCookie(getServletContext(), request, response);
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
         FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
-
+		
+        SimpleDB db = SimpleDB.getInstance();
+		db.memberRefresh();
 
         RequestDispatcher dispatcher = null;
         if(data == null) {

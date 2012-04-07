@@ -10,6 +10,9 @@ ${data.message}
 <input type=submit name=cmd value=Replace>&nbsp;&nbsp;
 <input type=text name=NewText size=40 maxlength=512>&nbsp;&nbsp;
 </form>
+<form method=GET action="memberRefresh">
+<input type=submit value="Member Refresh">
+</form>
 <form method=GET action="form">
 <input type=submit value="Refresh">
 </form>
