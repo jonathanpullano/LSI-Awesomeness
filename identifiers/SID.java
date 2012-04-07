@@ -2,6 +2,11 @@ package identifiers;
 
 import java.io.Serializable;
 
+/**
+ * SessionID, as defined in spec
+ * @author jonathanpullano
+ *
+ */
 public class SID  implements Serializable{
 
 	private static final long serialVersionUID = 7250440382030198587L;

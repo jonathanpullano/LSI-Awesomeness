@@ -106,7 +106,7 @@ public class RpcServer extends Thread {
             results.add(entry.message);
             results.add(entry.expiration);
         }
-        return new RpcMessageReply(call.getCallID(), results);
+        return new RpcMessageReply(call.getCallID(), results, RpcServer.getInstance().getIPPLocal());
     }
 
     public RpcMessageReply SessionWrite(RpcMessageCall call) {
@@ -117,7 +117,7 @@ public class RpcServer extends Thread {
         SessionTable table = SessionTable.getInstance();
 
         table.put(sid, new Entry(changeCount, data, discardTime));
-        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>());
+        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>(), RpcServer.getInstance().getIPPLocal());
     }
 
     public RpcMessageReply SessionDelete(RpcMessageCall call) {
@@ -126,11 +126,11 @@ public class RpcServer extends Thread {
         SessionTable table = SessionTable.getInstance();
         table.destroySession(sid, changeCount);
 
-        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>());
+        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>(), RpcServer.getInstance().getIPPLocal());
     }
 
     public RpcMessageReply NoOp(RpcMessageCall call) {
-        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>());
+        return new RpcMessageReply(call.getCallID(), new ArrayList<Object>(), RpcServer.getInstance().getIPPLocal());
     }
 
     /**

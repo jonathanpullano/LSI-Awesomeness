@@ -16,7 +16,7 @@ public class Configuration {
         try {
             props.load(this.getClass().getResourceAsStream("../WebContent/WEB-INF/AwsCredentials.properties"));
         } catch (Exception e) {
-            logger.log(Level.SEVERE,"Unable to load configuration: "+e.getMessage(),e);
+            logger.log(Level.SEVERE,"Unable to load configuration: " + e.getMessage(),e);
         }
     }
 

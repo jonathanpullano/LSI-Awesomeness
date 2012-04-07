@@ -2,6 +2,12 @@ package identifiers;
 
 import java.io.Serializable;
 
+/**
+ * Session Version Number, 
+ * as defined in spec
+ * @author jonathanpullano
+ *
+ */
 public class SVN implements Serializable {
 	private static final long serialVersionUID = -6264611582958483765L;
 	private int changeCount;

@@ -1,5 +1,12 @@
 package identifiers;
 
+/**
+ * Represents the value of a cookie
+ * (containing a sid, and svn)
+ * and provides methods to convert between
+ * this object and a string
+ * @author jonathanpullano
+ */
 public class CookieVal {
     private SID sid;
     private SVN svn;
