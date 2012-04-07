@@ -25,7 +25,7 @@ import com.amazonaws.services.simpledb.model.SelectResult;
 import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 
-public class SimpleDB extends Thread {
+public final class SimpleDB extends Thread {
 
     public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
 
@@ -46,7 +46,7 @@ public class SimpleDB extends Thread {
 		sdbc = new AmazonSimpleDBClient(oAWSCredentials);
 	}
 
-	public void createDomain(String domain){
+	public synchronized void createDomain(String domain){
 		if(DEBUG) System.out.println("Connecting and creating domain (" + domain + ")");
 		sdbc.createDomain(new CreateDomainRequest(domain));
 		
@@ -71,14 +71,14 @@ public class SimpleDB extends Thread {
 		}
 	}
 
-	public void deleteDomain(String domain){
+	public synchronized void deleteDomain(String domain){
 		if(DEBUG) System.out.println("Deleting domain ("+domain +")");
 		DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest();
 		deleteDomainRequest.setDomainName(domain);
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
 
-	public void memberRefresh(){
+	public synchronized void memberRefresh(){
 		//Set the local MbrSet to empty.
 		localMbrList.clear();
 		
@@ -141,22 +141,22 @@ public class SimpleDB extends Thread {
 		localMbrList.add(ipp);
 	}
 	
-	public String trimAndToString(Set<IPP> localMbrList2){
+	private String trimAndToString(Set<IPP> localMbrList2){
 		return localMbrList2.toString().replace("[", "").replace("]", "");
 	}
 	
-	public String trimAndToString(ArrayList<IPP> list){
+	private String trimAndToString(ArrayList<IPP> list){
 		if(list.isEmpty())
 			return " ";
 		return list.toString().replace("[", "").replace("]", "");
 	}
-	public ArrayList<IPP> getLocalMembers(){
+	public synchronized ArrayList<IPP> getLocalMembers(){
 		ArrayList<IPP> result = new ArrayList<IPP>();
 		result.addAll(localMbrList);
 		return result;
 	}
 	
-	public ArrayList<IPP> getMembers(){
+	private ArrayList<IPP> getMembers(){
 		ArrayList<IPP> servers = new ArrayList<IPP>();
 		String query = "select " + AttrName + " from " + MEMBER_LIST_DOMAIN;
 		SelectRequest selectRequest = new SelectRequest(query);
@@ -168,18 +168,18 @@ public class SimpleDB extends Thread {
 			return servers;
 		}
 		
-		/**
-		 * We always use one attribute so we get 0th item and get the 0th attribute 
-		 */
-		System.out.println("Items in db: " + items.toString());
+		if(DEBUG) System.out.println("Items in db: " + items.toString());
+		
 		String row = items.get(0).getAttributes().get(0).getValue();
 		if(row.equals(" ")){
 			System.out.println("row empty returning");
 			return servers;
 		}
 		String[] serverList = row.split(", ");
-		System.out.println("SERVER LIST SIZE (" + serverList.length + ")");
-		System.out.println("Row from db: " + row);
+		
+		if(DEBUG) System.out.println("Server List Size (" + serverList.length + ")");
+		if(DEBUG) System.out.println("Row from db: " + row);
+		
 		for(String ipp : serverList){
 			IPP ippMember = IPP.getIPP(ipp);
 			servers.add(ippMember);
@@ -187,18 +187,12 @@ public class SimpleDB extends Thread {
 		return servers;
 	}
 
-	public void listDomains(PrintWriter out) {
+	public synchronized void listDomains(PrintWriter out) {
 	    for(String domainName : sdbc.listDomains().getDomainNames()){
-	    	if(DEBUG) System.out.println("Domain: " + domainName);
             out.println("Domain: " + domainName);
         }
 	}
 	
-	public void listDomains() {
-	    for(String domainName : sdbc.listDomains().getDomainNames()){
-	    	if(DEBUG) System.out.println("Domain: " + domainName);
-        }
-	}
 	private String getKey () {
 		Configuration config = Configuration.getInstance();
 		if(DEBUG) System.out.println("Got accessKey: " + config.getProperty("accessKey"));
