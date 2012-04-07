@@ -29,7 +29,7 @@ public final class SimpleDB extends Thread {
 
     public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
 
-	private static boolean DEBUG = false;
+	private static boolean DEBUG = true;
 	
 	private static int ROUND_SLEEP_TIME = 5000;
 	
