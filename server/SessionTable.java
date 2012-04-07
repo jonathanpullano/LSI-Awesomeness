@@ -6,6 +6,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -20,7 +21,7 @@ public class SessionTable extends Thread {
     public static SessionTable table = new SessionTable();
     
     public HashMap<SID, Entry> sessionTable = new HashMap<SID, Entry>();
-    public TreeMap<SID, Entry> cacheTable = new TreeMap<SID, Entry>();
+    public CacheTable cacheTable = new CacheTable();
     
     final public static int MAX_CACHE_SIZE = 3;
 
@@ -65,9 +66,6 @@ public class SessionTable extends Thread {
     }
 
     public synchronized void cache(SID sessionID, ReadResult result, int changeCount) {
-        //TODO: can the cache store 
-        if(cacheTable.size() >= MAX_CACHE_SIZE)
-            cacheTable.remove(cacheTable.firstKey());
         cacheTable.put(sessionID, new Entry(changeCount, result.getData(), result.getDiscardTime())); 
     }
     
@@ -129,5 +127,13 @@ public class SessionTable extends Thread {
             e.printStackTrace();
         }
         cleanExpiredSessions();
+    }
+    
+    private class CacheTable extends LinkedHashMap<SID, Entry> {
+        protected boolean removeEldestEntry(Map.Entry eldest) {
+            if(size() > MAX_CACHE_SIZE)
+                return true;
+            return false;
+        }
     }
 }
