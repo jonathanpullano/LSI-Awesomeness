@@ -13,6 +13,9 @@ ${data.message}
 <form method=GET action="memberRefresh">
 <input type=submit value="Member Refresh">
 </form>
+<form method=GET action="serverCrash">
+<input type=submit value="Server Crash">
+</form>
 <form method=GET action="form">
 <input type=submit value="Refresh">
 </form>
