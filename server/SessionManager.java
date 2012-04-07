@@ -31,7 +31,7 @@ public class SessionManager {
     public static String COOKIE_NAME = "CS5300PROJECT1SESSION";
     public static int TIMEOUT = 1000 * 60 * 30;
     public static int COOKIE_TIMEOUT = TIMEOUT/1000;
-
+    private static boolean DEBUG=false;
     /**
      * Obtains the cookie for the current user. If none exists, creates a new one.
      * @param context
@@ -52,6 +52,7 @@ public class SessionManager {
             //We found a cookie, verify it's valid
             if(ourCookie != null) {
                 SessionTable table = SessionTable.getInstance();
+                System.out.println("Cookie was found and here it is (" + ourCookie.getValue() + ")");
                 SessionTable.Entry entry = table.get(CookieVal.getCookieVal(ourCookie.getValue()).getSid());
                 if(entry == null) {
                     //It's mangled. Throw it out.
