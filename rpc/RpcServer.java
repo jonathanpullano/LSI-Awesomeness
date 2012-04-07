@@ -89,6 +89,8 @@ public class RpcServer extends Thread {
     }
 
     public static RpcServer getInstance() {
+        if(theServer == null)
+            theServer = new RpcServer();
         return theServer;
     }
 
