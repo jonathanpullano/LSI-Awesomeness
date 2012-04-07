@@ -22,7 +22,6 @@ import server.SessionTable.Entry;
 
 //jonathan
 //TODO: Handle contexts/synchrony
-//TODO: Re-enable Garbage Collection
 //TODO: Make sure cookies are not replicated and deleted properly
 //TODO: Debug, Debug
 
