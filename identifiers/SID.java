@@ -39,12 +39,12 @@ public class SID  implements Serializable{
 		 return Integer.toString(sessNum) + "_" + ipp.toString();
      }
 
-	 public static SID getSID(String sidString) {
+	public static SID getSID(String sidString) {
 	     String[] split = sidString.split("_");
 	     return new SID(Integer.parseInt(split[0]), IPP.getIPP(split[1]));
-	 }
+	}
 
-   @Override
+     @Override
      public boolean equals(Object other) {
          if (this == other) return true;
          if (!(other instanceof SID)) return false;

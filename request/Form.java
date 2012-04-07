@@ -28,6 +28,7 @@ public class Form extends HttpServlet {
         
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
         FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
+        request.setAttribute("data", data);
 
         RequestDispatcher dispatcher = null;
         if(data == null) {
