@@ -190,19 +190,21 @@ public class SimpleDB {
 		SimpleDB.localMbrList = localMbrList;
 	}
 	
-	public void run(){
-		try {
-			Random generator = new Random();
-			double probOfRefresh = 1.0/localMbrList.size();
-			double rand = generator.nextDouble();
-			System.out.println(probOfRefresh + "\n" + rand);
-			
-			if(rand <= probOfRefresh)
-				memberRefresh();
-			
-			Thread.sleep(ROUND_SLEEP_TIME);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public void run() {
+	    memberRefresh();
+	    while(true) {
+    		try {
+                Thread.sleep(ROUND_SLEEP_TIME);
+    			Random generator = new Random();
+    			double probOfRefresh = 1.0/localMbrList.size();
+    			double rand = generator.nextDouble();
+    			System.out.println(probOfRefresh + "\n" + rand);
+    			
+    			if(rand <= probOfRefresh)
+    				memberRefresh();
+    		} catch (InterruptedException e) {
+    			e.printStackTrace();
+    		}
+	    }
 	}
 }
