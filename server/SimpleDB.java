@@ -53,7 +53,7 @@ public class SimpleDB {
 		sdbc.createDomain(new CreateDomainRequest(domain));
 		
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		newAttributes.add(new ReplaceableAttribute(AttrName,  "", false));
+		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", false));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
 		
 		UpdateCondition expected = new UpdateCondition();
@@ -86,7 +86,7 @@ public class SimpleDB {
 		
 		//Read the SDBMbrList from SimpleDB.
 		ArrayList<IPP> DBMbrList = getMembers();
-		
+			
 		//Send a NoOp to each member RPC to each IPP in the list (except IPPself) and wait for responses. 
 		//(You may want to do this more than once, to deal with dropped packets). Note that by the basic membership 
 		//protocol of Section 3.9 every response will cause a server to be added to the MbrSet.
@@ -111,13 +111,14 @@ public class SimpleDB {
 		}
 		
 		IPP ipp = new IPP(ip, RpcServer.getInstance().getPort());
+		System.out.println("RPCServer port: " + RpcServer.getInstance().getPort() + "IPP port " + ipp.getPort());
 		localMbrList.add(ipp);
 		
 		
 		//Write this new MbrSet into the SDBMbrList on SimpleDB.
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
 		
-		newAttributes.add(new ReplaceableAttribute(AttrName,  trimAndToString(localMbrList), false));
+		newAttributes.add(new ReplaceableAttribute(AttrName,  trimAndToString(localMbrList), true));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
 		
 		UpdateCondition expected = new UpdateCondition();
@@ -151,6 +152,8 @@ public class SimpleDB {
 	}
 	
 	public String trimAndToString(ArrayList<IPP> list){
+		if(list.isEmpty())
+			return " ";
 		return list.toString().replace("[", "").replace("]", "");
 	}
 	public ArrayList<IPP> getLocalMembers(){
@@ -166,15 +169,23 @@ public class SimpleDB {
 		SelectResult result = sdbc.select(selectRequest);
 		List<Item> items = result.getItems();
 		
+		if(items.size() == 0){
+			System.out.println("items size returning");
+			return servers;
+		}
+		
 		/**
 		 * We always use one attribute so we get 0th item and get the 0th attribute 
 		 */
-		if(items.size() == 0)
-			return servers;
-		
+		System.out.println("Items in db: " + items.toString());
 		String row = items.get(0).getAttributes().get(0).getValue();
+		if(row.equals(" ")){
+			System.out.println("row empty returning");
+			return servers;
+		}
 		String[] serverList = row.split(", ");
-		System.out.println("SERVER LIST ******* (" );
+		System.out.println("SERVER LIST SIZE (" + serverList.length + ")");
+		System.out.println("Row from db: " + row);
 		for(String ipp : serverList){
 			IPP ippMember = IPP.getIPP(ipp);
 			servers.add(ippMember);
