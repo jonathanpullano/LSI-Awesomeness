@@ -6,9 +6,11 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import rpc.RpcServer;
 import rpc.message.RpcMessageCall;
@@ -38,8 +40,8 @@ public class SimpleDB {
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String AttrName = "IPP";
 	
-	private static HashSet<IPP> localMbrList = new HashSet<IPP>();
-	
+	private static  Set<IPP> localMbrList = Collections.synchronizedSet(new HashSet<IPP>());
+	 
 	private static SimpleDB db = new SimpleDB();
 
 	private SimpleDB() {
@@ -125,8 +127,8 @@ public class SimpleDB {
 		localMbrList.add(ipp);
 	}
 	
-	public String trimAndToString(HashSet<IPP> set){
-		return set.toString().replace("[", "").replace("]", "");
+	public String trimAndToString(Set<IPP> localMbrList2){
+		return localMbrList2.toString().replace("[", "").replace("]", "");
 	}
 	
 	public String trimAndToString(ArrayList<IPP> list){
@@ -198,7 +200,6 @@ public class SimpleDB {
     			Random generator = new Random();
     			double probOfRefresh = 1.0/localMbrList.size();
     			double rand = generator.nextDouble();
-    			System.out.println(probOfRefresh + "\n" + rand);
     			
     			if(rand <= probOfRefresh)
     				memberRefresh();
