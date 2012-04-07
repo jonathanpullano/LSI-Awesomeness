@@ -3,12 +3,8 @@
 bin/*
 .project
 .settings
-
 bin/Objects/SID.class
-
 .classpath
-
 bin/server/SessionManager.class
 WebContent/AwsCredentials.properties
-
 WebContent/WEB-INF/AwsCredentials.properties
