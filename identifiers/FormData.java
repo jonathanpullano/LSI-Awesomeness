@@ -115,7 +115,7 @@ public class FormData {
                    "<p>IppBackup: " + getIppBackup() + "</p>" +
                    "<p>Discard Time: " + getDiscardTime() + "</p>";
         } else {
-            return "<p>Existing Session:</p> +" +
+            return "<p>Existing Session:</p>" +
                    "<p>" + getLoc() + ":" + getLocIPP() + "</p>";
         }
     }
