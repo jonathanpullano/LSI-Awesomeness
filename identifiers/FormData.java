@@ -2,7 +2,6 @@ package identifiers;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 
 import rpc.RpcServer;
 import server.SimpleDB;
@@ -44,6 +43,19 @@ public class FormData {
     public Location getLoc() {
         return loc;
     }
+    
+    public IPP getLocIPP(){
+    	switch(loc){
+    	case ippPrimary:
+    		return getIppPrimary();
+    	case ippBackup:
+    		return getIppBackup();
+    	case cache:
+    		return RpcServer.getInstance().getIPPLocal();
+    	}
+    	
+		return null;
+    }
 
     public boolean isNewUpdated() {
         return newUpdated;
@@ -70,7 +82,7 @@ public class FormData {
     }
 
     public ArrayList<IPP> getMemberSet() {
-        return SimpleDB.getInstance().getMembers();
+        return SimpleDB.getInstance().getLocalMembers();
     }
 
     public void setExpiration(long expiration) {

@@ -122,14 +122,17 @@ public class SessionTable extends Thread {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         cleanExpiredSessions();
     }
     
     private class CacheTable extends LinkedHashMap<SID, Entry> {
-        protected boolean removeEldestEntry(Map.Entry eldest) {
+
+		private static final long serialVersionUID = 1L;
+
+		protected boolean removeEldestEntry(Map.Entry eldest) {
+        	
             if(size() > MAX_CACHE_SIZE)
                 return true;
             return false;
