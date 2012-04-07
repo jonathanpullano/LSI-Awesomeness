@@ -24,6 +24,13 @@ public class FormData {
     private long discardTime;
     private SID eviction;
     
+    public FormData() {}
+    
+    public FormData(String message, long expiration) {
+        this.message = message;
+        this.expiration = new Date(expiration);
+    }
+    
     public String getMessage() {
         return message;
     }

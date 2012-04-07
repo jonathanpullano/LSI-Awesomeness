@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import server.FormManager;
 import server.SessionManager;
 
 @WebServlet("/logout")
@@ -24,6 +25,7 @@ public class logout extends HttpServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
         throws ServletException, IOException {
+	    FormManager.getInstance().newRequest();
         ServletContext context = getServletContext();
         Cookie cookie = SessionManager.getCookie(context, request, response);
 
@@ -34,5 +36,6 @@ public class logout extends HttpServlet {
         //Print the logout page
         PrintWriter out = response.getWriter();
         out.println("Bye!");
+        FormManager.getInstance().endRequest();
     }
 }
