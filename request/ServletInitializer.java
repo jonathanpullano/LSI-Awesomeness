@@ -17,10 +17,8 @@ public class ServletInitializer extends HttpServlet {
     {
         System.out.println("Server Initialized :D");
 
-        RpcServer server = RpcServer.getInstance();
         //Start the RPC server
-        server.start();
-        IPP local = server.getIPPLocal();
+        RpcServer.getInstance().start();
         
         //Start the garbage collector
         SessionTable.getInstance().run();
@@ -28,8 +26,6 @@ public class ServletInitializer extends HttpServlet {
         //TODO: Test on AWS
         SimpleDB db = SimpleDB.getInstance();
         db.createDomain(SimpleDB.MEMBER_LIST_DOMAIN);
-        
-        //TODO FIX ME to do periodic refresh... so spawn thread etc...
-        //db.putMember(SimpleDB.MEMBER_LIST_DOMAIN, local);
+        db.run();
     }
 }
