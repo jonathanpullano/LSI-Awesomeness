@@ -1,15 +1,17 @@
 package identifiers;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+
+import rpc.RpcServer;
+import server.SimpleDB;
 
 public class FormData {
     private String message;
     private Date expiration;
-    private SID serverID;
 
-
-    private enum Location { ippPrimary, ippBackup, cache };
+    public enum Location { ippPrimary, ippBackup, cache };
     private Location loc;
     private boolean newUpdated;
     private IPP ippPrimary;
@@ -17,7 +19,6 @@ public class FormData {
     private long expTime;
     private long discardTime;
     private SID eviction;
-    private HashSet<IPP> MbrSet;
 
     public FormData(String message, long expiration) {
         setMessage(message);
@@ -36,8 +37,8 @@ public class FormData {
         return expiration;
     }
 
-    public SID getServerID() {
-        return serverID;
+    public IPP getServerID() {
+        return RpcServer.getInstance().getIPPLocal();
     }
 
     public Location getLoc() {
@@ -68,8 +69,8 @@ public class FormData {
         return eviction;
     }
 
-    public HashSet<IPP> getMbrSet() {
-        return MbrSet;
+    public ArrayList<IPP> getMemberSet() {
+        return SimpleDB.getInstance().getMembers();
     }
 
     public void setExpiration(long expiration) {

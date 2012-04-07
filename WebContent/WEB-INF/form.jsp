@@ -24,5 +24,12 @@ ${data.message}
 </form>
 <p>
 ${data.expiration}
+</p>
+<p>
+ServerID: ${data.serverID}
+</p>
+<p>
+MemberSet: ${data.memberSet}
+</p>
 </body>
 </html>
