@@ -30,7 +30,7 @@ import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 public final class SimpleDB extends Thread {
 
-    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList1";
+    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList9000";
 
 	private static boolean DEBUG = true;
 	
@@ -100,13 +100,13 @@ public final class SimpleDB extends Thread {
 		        continue;
 			if(RpcMessageCall.NoOp(ipp))
 				localMbrList.add(ipp);
-//			else
-//			    retrySet.add(ipp);
+			else
+			    retrySet.add(ipp);
 		}
-//		for(IPP ipp : retrySet) {
-//            if(RpcMessageCall.NoOp(ipp))
-//                localMbrList.add(ipp);
-//        }
+		for(IPP ipp : retrySet) {
+            if(RpcMessageCall.NoOp(ipp))
+                localMbrList.add(ipp);
+        }
 			
 		//Add IPPself to the MbrSet
 		
@@ -228,7 +228,7 @@ public final class SimpleDB extends Thread {
     			double probOfRefresh = 1.0/localMbrList.size();
     			double rand = generator.nextDouble();
     			if(DEBUG) System.out.println("Local member list: " + localMbrList.toString());
-    			//if(rand <= probOfRefresh)
+    			if(rand <= probOfRefresh)
     				memberRefresh();
     		} catch (InterruptedException e) {
     			e.printStackTrace();
