@@ -108,14 +108,15 @@ public class SessionManager {
                 continue;
             if(RpcMessageCall.SessionWrite(ipp, sid, newChangeCount, newData, discardTime)) {
                 newIppBackup = ipp;
-                svn = new SVN(newChangeCount, newIppPrimary, newIppBackup);
+                newSvn = new SVN(newChangeCount, newIppPrimary, newIppBackup);
                 HashSet<IPP> set = new HashSet<IPP>();
                 set.add(ippPrimary);
                 set.add(ippBackup);
                 set.remove(ippLocal);
                 set.remove(ipp);
                 set.remove(IPP.getNullIpp());
-                RpcMessageCall.SessionDelete(set, sid, newChangeCount);
+                if(!set.isEmpty())
+                    RpcMessageCall.SessionDelete(set, sid, newChangeCount);
                 break;
             }
         }

@@ -215,7 +215,7 @@ public final class SimpleDB extends Thread {
 	
 	public static void main(String[] args){
 		SimpleDB db = SimpleDB.getInstance();
-		db.deleteDomain(MEMBER_LIST_DOMAIN);
+		//db.deleteDomain(MEMBER_LIST_DOMAIN);
 	}
 	
 	public void run() {
