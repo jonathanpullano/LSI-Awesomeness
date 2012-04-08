@@ -94,8 +94,11 @@ public class FormData {
         return discardTime;
     }
 
-    public SID getEviction() {
-        return eviction;
+    public String getEviction() {
+        if(eviction == null)
+            return "";
+        else
+            return "<p> Eviction: " + eviction + "</p>";
     }
 
     public void setEviction(SID eviction) {

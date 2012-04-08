@@ -32,5 +32,6 @@ ServerID: ${data.serverID}
 MemberSet: ${data.memberSet}
 </p>
 ${data.HTML}
+${data.eviction}
 </body>
 </html>
