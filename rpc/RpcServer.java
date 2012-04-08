@@ -54,7 +54,6 @@ public class RpcServer extends Thread {
                 byte[] inBuf = new byte[RpcMessage.BUFFER_SIZE];
                 DatagramPacket recvPkt = new DatagramPacket(inBuf, inBuf.length);
                 rpcSocket.receive(recvPkt);
-                IPP recvIPP = new IPP(recvPkt.getAddress(), recvPkt.getPort());
                 
                 InetAddress returnAddr = recvPkt.getAddress();
                 int returnPort = recvPkt.getPort();
