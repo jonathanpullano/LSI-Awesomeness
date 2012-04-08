@@ -99,9 +99,9 @@ public class RpcServer extends Thread {
         int changeCount = (Integer)call.getArguments().get(1);
         SessionTable table = SessionTable.getInstance();
 
-        Entry entry = table.get(sid);
+        Entry entry = table.get(sid, changeCount);
         ArrayList<Object> results = null;
-        if(entry.version == changeCount) {
+        if(entry.version >= changeCount) {
             results = new ArrayList<Object>();
             results.add(entry.message);
             results.add(entry.expiration);

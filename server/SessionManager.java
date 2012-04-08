@@ -53,7 +53,8 @@ public class SessionManager {
             if(ourCookie != null) {
                 SessionTable table = SessionTable.getInstance();
                 if(DEBUG) System.out.println("Cookie was found and here it is (" + ourCookie.getValue() + ")");
-                SessionTable.Entry entry = table.get(CookieVal.getCookieVal(ourCookie.getValue()).getSid());
+                CookieVal cookieVal = CookieVal.getCookieVal(ourCookie.getValue());
+                SessionTable.Entry entry = table.get(cookieVal.getSid(), cookieVal.getSvn().getChangeCount());
                 //if(DEBUG) System.out.println("SessionTable Cookie version (" + entry.message + ")");
 
                 if(entry == null) {
@@ -138,7 +139,7 @@ public class SessionManager {
         
         if(ippPrimary.equals(ippLocal)) {
             //We are the primary server, so return the data
-            Entry entry = SessionTable.getInstance().get(sid);
+            Entry entry = SessionTable.getInstance().get(sid, svn.getChangeCount());
             data.setLoc(Location.ippPrimary);
             data.setIppPrimary(ippPrimary);
             data.setMessage(entry.message);
@@ -155,7 +156,7 @@ public class SessionManager {
             response.addCookie(new Cookie(COOKIE_NAME, new CookieVal(newSid, newSvn).toString()));
         } else if(ippBackup.equals(ippLocal)) {
             //We are the backup server, so return the data
-            Entry entry = SessionTable.getInstance().get(sid);
+            Entry entry = SessionTable.getInstance().get(sid, svn.getChangeCount());
             data.setLoc(Location.ippBackup);
             data.setIppBackup(ippBackup);
             data.setMessage(entry.message);
