@@ -40,7 +40,7 @@ public final class SimpleDB extends Thread {
 	private static String AttrName = "IPP";
 	
 	//private static final HashSet<IPP> localMbrList = new HashSet<IPP>();
-	HashSet<IPP> localMbrList = (HashSet<IPP>) Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
+	Set<IPP> localMbrList = Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
 	private static SimpleDB db = new SimpleDB();
 
 	private SimpleDB() {
