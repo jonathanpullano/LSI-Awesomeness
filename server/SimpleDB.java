@@ -4,10 +4,12 @@ import identifiers.IPP;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import rpc.RpcServer;
 import rpc.message.RpcMessageCall;
@@ -38,8 +40,8 @@ public final class SimpleDB extends Thread {
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String AttrName = "IPP";
 	
-	private static final HashSet<IPP> localMbrList = new HashSet<IPP>();
-	 
+	//private static final HashSet<IPP> localMbrList = new HashSet<IPP>();
+	Set<IPP> localMbrList = Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
 	private static SimpleDB db = new SimpleDB();
 
 	private SimpleDB() {
@@ -47,7 +49,7 @@ public final class SimpleDB extends Thread {
 		sdbc = new AmazonSimpleDBClient(oAWSCredentials);
 	}
 
-	public synchronized void createDomain(String domain){
+	public void createDomain(String domain){
 		if(DEBUG) System.out.println("Connecting and creating domain (" + domain + ")");
 		sdbc.createDomain(new CreateDomainRequest(domain));
 		
@@ -73,14 +75,14 @@ public final class SimpleDB extends Thread {
 		}
 	}
 
-	public synchronized void deleteDomain(String domain){
+	public void deleteDomain(String domain){
 		if(DEBUG) System.out.println("Deleting domain ("+domain +")");
 		DeleteDomainRequest deleteDomainRequest = new DeleteDomainRequest();
 		deleteDomainRequest.setDomainName(domain);
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
 
-	public synchronized void memberRefresh(){
+	public void memberRefresh(){
 		//Set the local MbrSet to empty.
 		localMbrList.clear();
 		
@@ -135,11 +137,11 @@ public final class SimpleDB extends Thread {
 		}
 	}
 
-	public synchronized void deleteLocalMember(IPP ipp){
+	public void deleteLocalMember(IPP ipp){
 		localMbrList.remove(ipp);
 	}
 	
-	public synchronized void putLocalMember(IPP ipp){
+	public void putLocalMember(IPP ipp){
 		localMbrList.add(ipp);
 	}
 	
@@ -152,7 +154,7 @@ public final class SimpleDB extends Thread {
 			return " ";
 		return list.toString().replace("[", "").replace("]", "");
 	}
-	public synchronized ArrayList<IPP> getLocalMembers(){
+	public ArrayList<IPP> getLocalMembers(){
 		ArrayList<IPP> result = new ArrayList<IPP>();
 		result.addAll(localMbrList);
 		return result;
@@ -189,7 +191,7 @@ public final class SimpleDB extends Thread {
 		return servers;
 	}
 
-	public synchronized void listDomains(PrintWriter out) {
+	public void listDomains(PrintWriter out) {
 	    for(String domainName : sdbc.listDomains().getDomainNames()){
             out.println("Domain: " + domainName);
         }
@@ -225,7 +227,7 @@ public final class SimpleDB extends Thread {
     			double probOfRefresh = 1.0/localMbrList.size();
     			double rand = generator.nextDouble();
     			
-    			//if(rand <= probOfRefresh)
+    			if(rand <= probOfRefresh)
     				memberRefresh();
     		} catch (InterruptedException e) {
     			e.printStackTrace();
