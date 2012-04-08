@@ -51,17 +51,17 @@ public final class SimpleDB extends Thread {
 		sdbc.createDomain(new CreateDomainRequest(domain));
 		
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", false));
+		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", true));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
 		
-		UpdateCondition expected = new UpdateCondition();
-		expected.setName(AttrName);
-		expected.setExists(false);
+//		UpdateCondition expected = new UpdateCondition();
+//		expected.setName(AttrName);
+//		expected.setExists(false);
 		
 		newRequest.setDomainName(MEMBER_LIST_DOMAIN);
 		newRequest.setItemName(AttrName);
 		
-		newRequest.setExpected(expected);
+		//newRequest.setExpected(expected);
 		newRequest.setAttributes(newAttributes);
 		
 		try {
@@ -209,10 +209,10 @@ public final class SimpleDB extends Thread {
 	    return db;
 	}
 	
-//	public static void main(String[] args){
-//		SimpleDB db = SimpleDB.getInstance();
-//		db.deleteDomain(MEMBER_LIST_DOMAIN);
-//	}
+	public static void main(String[] args){
+		SimpleDB db = SimpleDB.getInstance();
+		db.deleteDomain(MEMBER_LIST_DOMAIN);
+	}
 	
 	public void run() {
 	    memberRefresh();
