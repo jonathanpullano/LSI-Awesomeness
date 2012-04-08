@@ -68,6 +68,7 @@ public class RpcClientRequest extends Thread {
                 inMsg = (RpcMessageReply) RpcMessage.readByteStream(inBuf);
             } while( inMsg.getCallID() != callID );
         } catch(InterruptedIOException iioe) {
+            if(DEBUG) System.out.println("Requests must have timed out D:");
             //All sent messages must have timed out
             for(IPP address : ippList)
                 SimpleDB.getInstance().deleteLocalMember(address);
