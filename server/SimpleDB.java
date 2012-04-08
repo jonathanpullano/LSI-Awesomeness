@@ -82,7 +82,7 @@ public final class SimpleDB extends Thread {
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
 
-	public void memberRefresh(){
+	public synchronized void memberRefresh(){
 		//Set the local MbrSet to empty.
 		localMbrList.clear();
 		
