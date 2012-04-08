@@ -226,7 +226,7 @@ public final class SimpleDB extends Thread {
     			Random generator = new Random();
     			double probOfRefresh = 1.0/localMbrList.size();
     			double rand = generator.nextDouble();
-    			
+    			if(DEBUG) System.out.println("Local member list: " + localMbrList.toString());
     			if(rand <= probOfRefresh)
     				memberRefresh();
     		} catch (InterruptedException e) {
