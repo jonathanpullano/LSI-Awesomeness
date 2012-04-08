@@ -51,7 +51,7 @@ public final class SimpleDB extends Thread {
 		sdbc.createDomain(new CreateDomainRequest(domain));
 		
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", true));
+		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", false));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
 		
 //		UpdateCondition expected = new UpdateCondition();
