@@ -69,7 +69,7 @@ public final class SimpleDB extends Thread {
 		
 		try {
 			sdbc.putAttributes(newRequest);
-		} catch(ConditionalCheckFailedException e){
+		} catch(Exception e){
 			//e.printStackTrace();
 			System.out.println("Conditional Check failed, the attribute probably already exists.");
 		}
