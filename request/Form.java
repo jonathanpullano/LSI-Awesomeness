@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import server.FormManager;
 import server.SessionManager;
 
 @WebServlet("/form")
@@ -23,19 +24,20 @@ public class Form extends HttpServlet {
     public void doGet(HttpServletRequest request,
                       HttpServletResponse response)
         throws ServletException, IOException {
-
+        FormManager.getInstance().newRequest();
         Cookie cookie = SessionManager.getCookie(getServletContext(), request, response);
         
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
-        FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
-        request.setAttribute("data", data);
+        boolean found = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
+        request.setAttribute("data", FormManager.getInstance().getData());
 
         RequestDispatcher dispatcher = null;
-        if(data == null) {
+        if(!found) {
             SessionManager.deleteCookie(response, cookie);
             dispatcher = request.getRequestDispatcher("/WEB-INF/error.jsp");
         } else
             dispatcher = request.getRequestDispatcher("/WEB-INF/form.jsp");
         dispatcher.forward(request, response);
+        FormManager.getInstance().endRequest();
     }
 }

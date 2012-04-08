@@ -19,7 +19,7 @@ public class RpcClientRequest extends Thread {
     private int opCode;
     private Collection<IPP> ippList;
     private ArrayList<Object> arguments;
-    private ArrayList<Object> results = null;
+    private RpcMessageReply results = null;
 
     public final static int SOCKET_TIMEOUT = 2000;
 
@@ -74,13 +74,15 @@ public class RpcClientRequest extends Thread {
         } catch(IOException ioe) {
             // other error
         }
-        results = inMsg.getResults();
+        results = inMsg;
     }
 
     /**
-     * Returns the result of the request, or NULL if the request has not been completed
+     * Returns the result of the request
      */
-    public ArrayList<Object> getResults() {
+    public RpcMessageReply getReply() {
         return results;
     }
+    
+
 }

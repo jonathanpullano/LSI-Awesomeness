@@ -29,21 +29,21 @@ public class RpcMessageCall extends RpcMessage {
         return opCode;
     }
 
-    private static ArrayList<Object> send(Collection<IPP> ippList, int opCode, ArrayList<Object> arguments) {
+    private static RpcMessageReply send(Collection<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         RpcClientRequest client = new RpcClientRequest(ippList, opCode, arguments);
         client.start();
         while(client.getState() != Thread.State.TERMINATED);
-        return client.getResults();
+        return client.getReply();
     }
     
     public static ReadResult SessionRead(ArrayList<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
-        ArrayList<Object> results = send(ippList, RpcMessage.READ, arguments);
+        RpcMessageReply results = send(ippList, RpcMessage.READ, arguments);
         if(results == null)
             return null;
-        ReadResult readResult = new ReadResult((String)results.get(0), (Long)results.get(1));
+        ReadResult readResult = new ReadResult((String)results.getResults().get(0), (Long)results.getResults().get(1), results.getServer());
         SessionTable.getInstance().cache(sid, readResult, changeCount);
         return readResult;
     }
@@ -84,10 +84,12 @@ public class RpcMessageCall extends RpcMessage {
     public static class ReadResult {
         String data;
         long discardTime;
+        IPP serverID;
 
-        public ReadResult(String data, long discardTime) {
+        public ReadResult(String data, long discardTime, IPP serverID) {
             this.data = data;
             this.discardTime = discardTime;
+            this.serverID = serverID;
         }
 
         public String getData() {
@@ -96,6 +98,10 @@ public class RpcMessageCall extends RpcMessage {
 
         public long getDiscardTime() {
             return discardTime;
+        }
+        
+        public IPP getServerID() {
+            return serverID;
         }
     };
 }

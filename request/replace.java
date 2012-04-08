@@ -1,6 +1,7 @@
 package request;
 
 import identifiers.CookieVal;
+import identifiers.FormData;
 
 import java.io.IOException;
 
@@ -35,6 +36,8 @@ public class replace extends HttpServlet {
         if(newText != null)
             newText = newText.substring(0, Math.min(newText.length(), 512));
         Cookie newCookie = SessionManager.writeRequest(context, newText, cookieVal.getSid(), cookieVal.getSvn());
+        FormData data = FormManager.getInstance().getData();
+        request.setAttribute("data", data);
         response.addCookie(newCookie);
 
         //Redirect to form.jsp

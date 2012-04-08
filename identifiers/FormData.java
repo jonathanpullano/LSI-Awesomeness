@@ -14,6 +14,7 @@ import server.SimpleDB;
  */
 public class FormData {
     private String message;
+    private long discardTime;
     private Date expiration;
 
     public enum Location { ippPrimary, ippBackup, cache, NotFound };
@@ -21,13 +22,14 @@ public class FormData {
     private boolean newUpdated;
     private IPP ippPrimary;
     private IPP ippBackup;
-    private long discardTime;
+    
     private SID eviction;
     
     public FormData() {}
     
     public FormData(String message, long expiration) {
         this.message = message;
+        this.discardTime = expiration;
         this.expiration = new Date(expiration);
     }
     
@@ -92,10 +94,6 @@ public class FormData {
         return discardTime;
     }
 
-    public void setDiscardTime(long discardTime) {
-        this.discardTime = discardTime;
-    }
-
     public SID getEviction() {
         return eviction;
     }
@@ -110,13 +108,13 @@ public class FormData {
     
     public String getHTML() {
         if(newUpdated) {
-            return "<p>Updated/New Session:</p>" +
+            return "<p><b>Updated/New Session</b></p>" +
                    "<p>IppPrimary: " + getIppPrimary() + "</p>" +
                    "<p>IppBackup: " + getIppBackup() + "</p>" +
                    "<p>Discard Time: " + getDiscardTime() + "</p>";
         } else {
-            return "<p>Existing Session:</p>" +
-                   "<p>" + getLoc() + ":" + getLocIPP() + "</p>";
+            return "<p><b>Existing Session</b><br>" +
+                    getLoc() + ": " + getLocIPP() + "</p>";
         }
     }
 
@@ -129,6 +127,7 @@ public class FormData {
     }
 
     public void setExpiration(long expiration) {
+        this.discardTime = expiration;
         this.expiration = new Date(expiration);
     }
 }

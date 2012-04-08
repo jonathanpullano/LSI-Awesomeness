@@ -79,12 +79,15 @@ public class SessionManager {
     }
 
     public static Cookie writeRequest(ServletContext context, String newData, SID sid, SVN svn) {
+        FormData data = FormManager.getInstance().getData();
+        data.setNewUpdated(true);
         SessionTable table = SessionTable.getInstance();
         long discardTime = getExpirationTime();
         int newChangeCount = svn.getChangeCount()+1;
         SessionTable.Entry entry = new SessionTable.Entry(newChangeCount, newData, discardTime);
         table.put(sid, entry);
-        context.setAttribute("data", new FormData(newData, discardTime));
+        data.setMessage(newData);
+        data.setExpiration(discardTime);
 
         IPP ippLocal = RpcServer.getInstance().getIPPLocal();
         ArrayList<IPP> members = SimpleDB.getInstance().getLocalMembers();
@@ -98,11 +101,14 @@ public class SessionManager {
         members.add(0, ippPrimary);
         members.add(0, ippBackup);
         SVN newSvn = null;
+        IPP newIppPrimary = ippLocal;
+        IPP newIppBackup = null;
         for(IPP ipp : members) {
             if(ipp.equals(ippLocal) || ipp.isNull())
                 continue;
             if(RpcMessageCall.SessionWrite(ipp, sid, newChangeCount, discardTime)) {
-                svn = new SVN(newChangeCount, ippLocal, ipp);
+                newIppBackup = ipp;
+                svn = new SVN(newChangeCount, newIppPrimary, newIppBackup);
                 HashSet<IPP> set = new HashSet<IPP>();
                 set.add(ippPrimary);
                 set.add(ippBackup);
@@ -112,22 +118,28 @@ public class SessionManager {
                 break;
             }
         }
-        if(newSvn == null)
-            newSvn = new SVN(newChangeCount, ippLocal, IPP.getNullIpp());
+        if(newSvn == null) {
+            newIppBackup = IPP.getNullIpp();
+            newSvn = new SVN(newChangeCount, newIppPrimary, newIppBackup);
+        }
+        data.setIppPrimary(newIppPrimary);
+        data.setIppBackup(newIppBackup);
         return new Cookie(COOKIE_NAME, new CookieVal(sid, newSvn).toString());
     }
 
-    public static FormData readRequest(HttpServletResponse response, SID sid, SVN svn) {
+    public static boolean readRequest(HttpServletResponse response, SID sid, SVN svn) {
+        FormData data = FormManager.getInstance().getData();
         IPP ippPrimary = svn.getIppPrime();
         IPP ippBackup = svn.getIppBackup();
         IPP ippLocal = RpcServer.getInstance().getIPPLocal();
         if(ippPrimary.equals(ippLocal)) {
             //We are the primary server, so return the data
             Entry entry = SessionTable.getInstance().get(sid);
-            FormData formData = new FormData(entry.message, entry.version);
-            //formData.setLocation(Location.ippPrimary);
-            //formData.
-            return formData;
+            data.setLoc(Location.ippPrimary);
+            data.setIppPrimary(ippPrimary);
+            data.setMessage(entry.message);
+            data.setExpiration(entry.expiration);
+            return true;
         } else if(ippBackup.isNull()) {
             //Backup is null. Trigger self-repair case from 3.4
             ippBackup = ippLocal;
@@ -137,18 +149,34 @@ public class SessionManager {
         } else if(ippBackup.equals(ippLocal)) {
             //We are the backup server, so return the data
             Entry entry = SessionTable.getInstance().get(sid);
-            return new FormData(entry.message, entry.version);
+            data.setLoc(Location.ippBackup);
+            data.setIppBackup(ippBackup);
+            data.setMessage(entry.message);
+            data.setExpiration(entry.expiration);
+            return true;
         }
         ArrayList<IPP> ippList = new ArrayList<IPP>();
         //Primary should never be null, and backup should be self-repaired
         ippList.add(ippPrimary);
         ippList.add(ippBackup);
         ReadResult result = null;
-        if(!ippList.isEmpty())
+        if(!ippList.isEmpty()) {
             result = RpcMessageCall.SessionRead(ippList, sid, svn.getChangeCount());
-        if(result != null)
-            return new FormData(result.getData(), result.getDiscardTime());
-        return null;
+            if(result.getServerID().equals(ippPrimary)) {
+                data.setLoc(Location.ippPrimary);
+                data.setIppPrimary(ippPrimary);
+            } else if(result.getServerID().equals(ippBackup)) {
+                data.setLoc(Location.ippBackup);
+                data.setIppBackup(ippBackup);
+            } else
+                System.err.println("Invalid Server");
+        }
+        if(result != null) {
+            data.setMessage(result.getData());
+            data.setExpiration(result.getDiscardTime());
+            return true;
+        }
+        return false;
     }   
 
     /**

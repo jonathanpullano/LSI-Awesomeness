@@ -28,15 +28,14 @@ public class memberRefresh extends HttpServlet {
         FormManager.getInstance().newRequest();
         Cookie cookie = SessionManager.getCookie(getServletContext(), request, response);
         CookieVal cookieVal = CookieVal.getCookieVal(cookie.getValue());
-        FormData data = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
+        boolean found  = SessionManager.readRequest(response, cookieVal.getSid(), cookieVal.getSvn());
         
-		
         SimpleDB db = SimpleDB.getInstance();
 		db.memberRefresh();
 
-		request.setAttribute("data", data);
+		request.setAttribute("data", FormManager.getInstance().getData());
         RequestDispatcher dispatcher = null;
-        if(data == null) {
+        if(!found) {
             SessionManager.deleteCookie(response, cookie);
             dispatcher = request.getRequestDispatcher("/WEB-INF/error.jsp");
         } else
