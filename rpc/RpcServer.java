@@ -55,7 +55,7 @@ public class RpcServer extends Thread {
                 DatagramPacket recvPkt = new DatagramPacket(inBuf, inBuf.length);
                 rpcSocket.receive(recvPkt);
                 IPP recvIPP = new IPP(recvPkt.getAddress(), recvPkt.getPort());
-                //SimpleDB.getInstance().putLocalMember(recvIPP);
+                SimpleDB.getInstance().putLocalMember(recvIPP);
                 InetAddress returnAddr = recvPkt.getAddress();
                 int returnPort = recvPkt.getPort();
                 RpcMessageCall recvMessage = (RpcMessageCall) RpcMessage.readByteStream(inBuf);
