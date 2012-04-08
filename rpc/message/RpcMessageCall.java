@@ -48,18 +48,19 @@ public class RpcMessageCall extends RpcMessage {
         return readResult;
     }
 
-    public static boolean SessionWrite(Collection<IPP> ippList, SID sid, int changeCount, long discardTime) {
+    public static boolean SessionWrite(Collection<IPP> ippList, SID sid, int changeCount, String data, long discardTime) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
+        arguments.add(data);
         arguments.add(discardTime);
         return send(ippList, RpcMessage.WRITE, arguments) != null;
     }
     
-    public static boolean SessionWrite(IPP ipp, SID sid, int changeCount, long discardTime) {
+    public static boolean SessionWrite(IPP ipp, SID sid, int changeCount, String data, long discardTime) {
         ArrayList<IPP> ippList = new ArrayList<IPP>();
         ippList.add(ipp);
-        return SessionWrite(ippList, sid, changeCount, discardTime);
+        return SessionWrite(ippList, sid, changeCount, data, discardTime);
     }
 
     public static boolean SessionDelete(Collection<IPP> ippList, SID sid, int changeCount) {

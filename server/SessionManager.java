@@ -106,7 +106,7 @@ public class SessionManager {
         for(IPP ipp : members) {
             if(ipp.equals(ippLocal) || ipp.isNull())
                 continue;
-            if(RpcMessageCall.SessionWrite(ipp, sid, newChangeCount, discardTime)) {
+            if(RpcMessageCall.SessionWrite(ipp, sid, newChangeCount, newData, discardTime)) {
                 newIppBackup = ipp;
                 svn = new SVN(newChangeCount, newIppPrimary, newIppBackup);
                 HashSet<IPP> set = new HashSet<IPP>();
