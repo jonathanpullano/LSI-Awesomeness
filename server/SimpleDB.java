@@ -30,7 +30,7 @@ import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 public final class SimpleDB extends Thread {
 
-    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList";
+    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList1";
 
 	private static boolean DEBUG = true;
 	
@@ -94,24 +94,24 @@ public final class SimpleDB extends Thread {
 		//protocol of Section 3.9 every response will cause a server to be added to the MbrSet.
 		HashSet<IPP> retrySet = new HashSet<IPP>();
 		IPP ippLocal = RpcServer.getInstance().getIPPLocal();
-		
+		if(DEBUG) System.out.println("RpcServer returned local ipp (" + ippLocal.toString() + ")");
 		for(IPP ipp : DBMbrList) {
 		    if(ippLocal.equals(ipp))
 		        continue;
 			if(RpcMessageCall.NoOp(ipp))
 				localMbrList.add(ipp);
-			else
-			    retrySet.add(ipp);
+//			else
+//			    retrySet.add(ipp);
 		}
-		for(IPP ipp : retrySet) {
-            if(RpcMessageCall.NoOp(ipp))
-                localMbrList.add(ipp);
-        }
+//		for(IPP ipp : retrySet) {
+//            if(RpcMessageCall.NoOp(ipp))
+//                localMbrList.add(ipp);
+//        }
 			
 		//Add IPPself to the MbrSet
 		
 		localMbrList.add(ippLocal);
-		
+		if(DEBUG) System.out.println("MemberRefresh member list (" +localMbrList +")");
 		
 		//Write this new MbrSet into the SDBMbrList on SimpleDB.
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
@@ -163,7 +163,7 @@ public final class SimpleDB extends Thread {
 	
 	private ArrayList<IPP> getMembers(){
 		ArrayList<IPP> servers = new ArrayList<IPP>();
-		String query = "select " + AttrName + " from " + MEMBER_LIST_DOMAIN;
+		String query = "select * from " + MEMBER_LIST_DOMAIN;
 		SelectRequest selectRequest = new SelectRequest(query);
 		SelectResult result = sdbc.select(selectRequest);
 		List<Item> items = result.getItems();
@@ -216,7 +216,7 @@ public final class SimpleDB extends Thread {
 	
 	public static void main(String[] args){
 		SimpleDB db = SimpleDB.getInstance();
-		//db.deleteDomain(MEMBER_LIST_DOMAIN);
+		db.deleteDomain(MEMBER_LIST_DOMAIN);
 	}
 	
 	public void run() {
@@ -228,7 +228,7 @@ public final class SimpleDB extends Thread {
     			double probOfRefresh = 1.0/localMbrList.size();
     			double rand = generator.nextDouble();
     			if(DEBUG) System.out.println("Local member list: " + localMbrList.toString());
-    			if(rand <= probOfRefresh)
+    			//if(rand <= probOfRefresh)
     				memberRefresh();
     		} catch (InterruptedException e) {
     			e.printStackTrace();
