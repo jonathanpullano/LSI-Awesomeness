@@ -132,13 +132,16 @@ public class SessionManager {
         IPP ippPrimary = svn.getIppPrime();
         IPP ippBackup = svn.getIppBackup();
         IPP ippLocal = RpcServer.getInstance().getIPPLocal();
+        
+        
         if(ippPrimary.equals(ippLocal)) {
             //We are the primary server, so return the data
             Entry entry = SessionTable.getInstance().get(sid);
             data.setLoc(Location.ippPrimary);
             data.setIppPrimary(ippPrimary);
             data.setMessage(entry.message);
-            data.setExpiration(entry.expiration);
+            //data.setExpiration(entry.expiration);
+            data.setExpiration(getExpirationTime());
             return true;
         } else if(ippBackup.isNull()) {
             //Backup is null. Trigger self-repair case from 3.4
@@ -152,7 +155,8 @@ public class SessionManager {
             data.setLoc(Location.ippBackup);
             data.setIppBackup(ippBackup);
             data.setMessage(entry.message);
-            data.setExpiration(entry.expiration);
+            //data.setExpiration(entry.expiration);
+            data.setExpiration(getExpirationTime());
             return true;
         }
         ArrayList<IPP> ippList = new ArrayList<IPP>();
