@@ -53,7 +53,7 @@ public class IPP implements Serializable{
 
 	 @Override
 	 public int hashCode() {
-	     return getIp().toString().hashCode() + getPort();
+	     return getIp().hashCode() + getPort();
 	 }
 
 	 public static IPP getIPP(String ippString) {
