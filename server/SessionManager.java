@@ -22,9 +22,6 @@ import rpc.message.RpcMessageCall.ReadResult;
 import server.SessionTable.Entry;
 
 //jonathan
-//TODO: Handle contexts/synchrony
-//TODO: Make sure cookies are not replicated and deleted properly
-//TODO: Debug, Debug
 
 public class SessionManager {
     public static String DEFAULT_MESSAGE = "Hello, user!";

@@ -7,17 +7,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import rpc.RpcClientRequest;
+import rpc.RpcServer;
 import server.SessionTable;
 
 public class RpcMessageCall extends RpcMessage {
     private static final long serialVersionUID = -424650587395225785L;
     private int opCode;
+    private IPP serverID; //Represents the server's IPP with correct listening port
+
     private ArrayList<Object> arguments;
 
     public RpcMessageCall(int callID, int opCode, ArrayList<Object> arguments) {
         super(callID);
         this.opCode = opCode;
         this.arguments = arguments;
+        this.serverID = RpcServer.getInstance().getIPPLocal();
         validatePacket();
     }
 
@@ -28,9 +32,14 @@ public class RpcMessageCall extends RpcMessage {
     public int getOpCode() {
         return opCode;
     }
+    
+    public IPP getServerID() {
+        return serverID;
+    };
 
     private static RpcMessageReply send(Collection<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         RpcClientRequest client = new RpcClientRequest(ippList, opCode, arguments);
+        
         client.start();
         while(client.getState() != Thread.State.TERMINATED);
         return client.getReply();
@@ -104,5 +113,7 @@ public class RpcMessageCall extends RpcMessage {
         public IPP getServerID() {
             return serverID;
         }
-    };
+        
+        
+    }
 }
