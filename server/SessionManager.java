@@ -114,6 +114,7 @@ public class SessionManager {
                 set.add(ippBackup);
                 set.remove(ippLocal);
                 set.remove(ipp);
+                set.remove(IPP.getNullIpp());
                 RpcMessageCall.SessionDelete(set, sid, newChangeCount);
                 break;
             }
