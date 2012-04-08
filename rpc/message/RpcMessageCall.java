@@ -45,7 +45,13 @@ public class RpcMessageCall extends RpcMessage {
         return client.getReply();
     }
     
-    public static ReadResult SessionRead(ArrayList<IPP> ippList, SID sid, int changeCount) {
+    public static ReadResult SessionRead(IPP ipp, SID sid, int changeCount) {
+        ArrayList<IPP> ippList = new ArrayList<IPP>();
+        ippList.add(ipp);
+        return SessionRead(ippList, sid, changeCount);
+    }
+    
+    public static ReadResult SessionRead(Collection<IPP> ippList, SID sid, int changeCount) {
         ArrayList<Object> arguments = new ArrayList<Object>();
         arguments.add(sid);
         arguments.add(changeCount);
