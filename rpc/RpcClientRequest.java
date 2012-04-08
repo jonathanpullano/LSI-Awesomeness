@@ -22,6 +22,7 @@ public class RpcClientRequest extends Thread {
     private RpcMessageReply results = null;
 
     public final static int SOCKET_TIMEOUT = 2000;
+    private static final boolean DEBUG = true;
 
     public RpcClientRequest(Collection<IPP> ippList, int opCode, ArrayList<Object> arguments) {
         super("ClientRequest");
@@ -49,6 +50,7 @@ public class RpcClientRequest extends Thread {
         byte[] outBuf = outMsg.toByteStream();
         for( IPP address : ippList ) {
             //TODO: Are there cases where the example code breaks? :O
+            if(DEBUG) System.out.println("Sending a request to:" + address);
             DatagramPacket sendPkt = new DatagramPacket(outBuf, outBuf.length, address.getIp(), address.getPort());
             try {
                 rpcSocket.send(sendPkt);
