@@ -77,10 +77,10 @@ public class SessionTable extends Thread {
 
     public synchronized void destroySession(SID sessionID, int version) {
         Entry session = sessionTable.get(sessionID);
-        if(session.version <= version)
+        if(session != null && session.version <= version)
             sessionTable.remove(session);
         session = cacheTable.get(sessionID);
-        if(session.version <= version)
+        if(session != null &&session.version <= version)
             cacheTable.remove(session);
     }
 
