@@ -32,8 +32,5 @@ ServerID: ${data.serverID}
 MemberSet: ${data.memberSet}
 </p>
 ${data.HTML}
-<p> 
-Session Data found in: ${data.loc} (${data.locIPP})
-</p>
 </body>
 </html>
