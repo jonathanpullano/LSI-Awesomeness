@@ -14,6 +14,7 @@ import rpc.message.RpcMessageCall;
 import util.Configuration;
 
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.dynamodb.model.ConditionalCheckFailedException;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
@@ -51,23 +52,24 @@ public final class SimpleDB extends Thread {
 		sdbc.createDomain(new CreateDomainRequest(domain));
 		
 		ArrayList<ReplaceableAttribute> newAttributes = new ArrayList<ReplaceableAttribute>();
-		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", false));
+		newAttributes.add(new ReplaceableAttribute(AttrName,  " ", true));
 		PutAttributesRequest newRequest = new PutAttributesRequest();
 		
-//		UpdateCondition expected = new UpdateCondition();
-//		expected.setName(AttrName);
-//		expected.setExists(false);
+		UpdateCondition expected = new UpdateCondition();
+		expected.setName(AttrName);
+		expected.setExists(false);
 		
 		newRequest.setDomainName(MEMBER_LIST_DOMAIN);
 		newRequest.setItemName(AttrName);
 		
-		//newRequest.setExpected(expected);
+		newRequest.setExpected(expected);
 		newRequest.setAttributes(newAttributes);
 		
 		try {
 			sdbc.putAttributes(newRequest);
-		} catch(Exception e){
-			e.printStackTrace();
+		} catch(ConditionalCheckFailedException e){
+			//e.printStackTrace();
+			System.out.println("Conditional Check failed, the attribute probably already exists.");
 		}
 	}
 
@@ -223,7 +225,7 @@ public final class SimpleDB extends Thread {
     			double probOfRefresh = 1.0/localMbrList.size();
     			double rand = generator.nextDouble();
     			
-    			if(rand <= probOfRefresh)
+    			//if(rand <= probOfRefresh)
     				memberRefresh();
     		} catch (InterruptedException e) {
     			e.printStackTrace();
