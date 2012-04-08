@@ -133,7 +133,8 @@ public final class SimpleDB extends Thread {
 		try {
 			sdbc.putAttributes(newRequest);
 		} catch(Exception e){
-			e.printStackTrace();
+			//e.printStackTrace();
+			System.out.println("An exception was cought in member refresh. Maybe due to a lock on the db.");
 		}
 	}
 
