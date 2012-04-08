@@ -16,7 +16,6 @@ import rpc.message.RpcMessageCall;
 import util.Configuration;
 
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.dynamodb.model.ConditionalCheckFailedException;
 import com.amazonaws.services.simpledb.AmazonSimpleDBClient;
 import com.amazonaws.services.simpledb.model.CreateDomainRequest;
 import com.amazonaws.services.simpledb.model.DeleteDomainRequest;
@@ -143,6 +142,9 @@ public final class SimpleDB extends Thread {
 	}
 	
 	public void putLocalMember(IPP ipp){
+		if(localMbrList.contains(ipp))
+			System.out.println("Member (" + ipp.toString() + ") ALREADY EXISTS!!");
+		
 		localMbrList.add(ipp);
 	}
 	
@@ -158,6 +160,7 @@ public final class SimpleDB extends Thread {
 	public ArrayList<IPP> getLocalMembers(){
 		ArrayList<IPP> result = new ArrayList<IPP>();
 		result.addAll(localMbrList);
+		if(DEBUG) System.out.println("Returning local member set: " + result.toString());
 		return result;
 	}
 	
