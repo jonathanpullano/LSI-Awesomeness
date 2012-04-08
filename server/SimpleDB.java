@@ -26,7 +26,6 @@ import com.amazonaws.services.simpledb.model.SelectRequest;
 import com.amazonaws.services.simpledb.model.SelectResult;
 import com.amazonaws.services.simpledb.model.UpdateCondition;
 
-
 public final class SimpleDB extends Thread {
 
     public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList9000";
@@ -39,8 +38,7 @@ public final class SimpleDB extends Thread {
 	private static AmazonSimpleDBClient sdbc = null;
 	private static String AttrName = "IPP";
 	
-	//private static final HashSet<IPP> localMbrList = new HashSet<IPP>();
-	HashSet<IPP> localMbrList = (HashSet<IPP>) Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
+	Set<IPP> localMbrList = Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
 	private static SimpleDB db = new SimpleDB();
 
 	private SimpleDB() {

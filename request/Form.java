@@ -1,7 +1,6 @@
 package request;
 
 import identifiers.CookieVal;
-import identifiers.FormData;
 
 import java.io.IOException;
 
