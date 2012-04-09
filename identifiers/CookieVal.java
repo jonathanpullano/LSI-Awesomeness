@@ -5,7 +5,6 @@ package identifiers;
  * (containing a sid, and svn)
  * and provides methods to convert between
  * this object and a string
- * @author jonathanpullano
  */
 public class CookieVal {
     private SID sid;
