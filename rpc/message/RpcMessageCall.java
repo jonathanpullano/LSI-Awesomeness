@@ -56,7 +56,7 @@ public class RpcMessageCall extends RpcMessage {
         arguments.add(sid);
         arguments.add(changeCount);
         RpcMessageReply results = send(ippList, RpcMessage.READ, arguments);
-        if(results == null)
+        if(results == null || results.getResults() == null)
             return null;
         ReadResult readResult = new ReadResult((String)results.getResults().get(0), (Long)results.getResults().get(1), results.getServer());
         SessionTable.getInstance().cache(sid, readResult, changeCount);

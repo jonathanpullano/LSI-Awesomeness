@@ -16,15 +16,15 @@ public class FormManager {
     
     private FormManager() {}
     
-    public synchronized void newRequest() {
+    public void newRequest() {
         formData.put(Thread.currentThread().getId(), new FormData());
     }
     
-    public synchronized void endRequest() {
+    public void endRequest() {
         formData.remove(Thread.currentThread().getId());
     }
     
-    public synchronized FormData getData() {
+    public FormData getData() {
         return formData.get(Thread.currentThread().getId());
     }
     

@@ -28,11 +28,11 @@ import com.amazonaws.services.simpledb.model.UpdateCondition;
 
 public final class SimpleDB extends Thread {
 
-    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList9000";
+    public static final String MEMBER_LIST_DOMAIN = "CS5300PROJECT1BSDBMbrList90009";
 
 	private static boolean DEBUG = true;
 	
-	private static int ROUND_SLEEP_TIME = 5000;
+	private static int ROUND_SLEEP_TIME = 60000;
 	
 	private static BasicAWSCredentials oAWSCredentials = null;
 	private static AmazonSimpleDBClient sdbc = null;
@@ -40,7 +40,7 @@ public final class SimpleDB extends Thread {
 	
 	//private static final HashSet<IPP> localMbrList = new HashSet<IPP>();
 
-	Set<IPP> localMbrList = Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
+	Set<IPP> localMbrList = new HashSet<IPP>();//Collections.newSetFromMap(new ConcurrentHashMap<IPP, Boolean>());
 	private static SimpleDB db = new SimpleDB();
 
 	private SimpleDB() {
@@ -81,7 +81,7 @@ public final class SimpleDB extends Thread {
 		sdbc.deleteDomain(deleteDomainRequest);
 	}
 
-	public synchronized void memberRefresh(){
+	public void memberRefresh(){
 		//Set the local MbrSet to empty.
 		localMbrList.clear();
 		
@@ -228,9 +228,12 @@ public final class SimpleDB extends Thread {
     		try {
                 Thread.sleep(ROUND_SLEEP_TIME);
     			Random generator = new Random();
-    			double probOfRefresh = 1.0/localMbrList.size();
-    			double rand = generator.nextDouble();
-    			if(DEBUG) System.out.println("Local member list: " + localMbrList.toString());
+    			double rand;
+    			double probOfRefresh;
+    		
+        			probOfRefresh = 1.0/localMbrList.size();
+        			rand = generator.nextDouble();
+        			if(DEBUG) System.out.println("Local member list: " + localMbrList.toString());
     			if(rand <= probOfRefresh)
     				memberRefresh();
     		} catch (InterruptedException e) {

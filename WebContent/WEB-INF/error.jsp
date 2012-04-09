@@ -1,1 +1,1 @@
-<HTML><img src="error.jpg"></HTML>
+<HTML><img src="error.jpg"><p>But seriously, we can't find your session.</p></HTML>
