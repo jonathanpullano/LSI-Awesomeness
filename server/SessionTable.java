@@ -55,15 +55,13 @@ public class SessionTable extends Thread {
     public synchronized Entry get(SID sessionID, int changeCount) {
         if(sessionTable.containsKey(sessionID)) {
             Entry entry = sessionTable.get(sessionID);
-            if(entry.version >= changeCount)
+            if(entry != null && entry.version >= changeCount)
                 return sessionTable.get(sessionID);
         }
-            
-        if(DEBUG) System.out.println("Returning a cached entry");
-        if(DEBUG) System.out.println("Cache entry: " + cacheTable.get(sessionID)); 
+        
         if(cacheTable.containsKey(sessionID)) {
             Entry entry = sessionTable.get(sessionID);
-            if(entry.version >= changeCount) {
+            if(entry != null && entry.version >= changeCount) {
             	FormManager.getInstance().getData().setLoc(Location.cache);
             	return cacheTable.get(sessionID);
             }
